@@ -5,7 +5,6 @@
 	$id = 0;
 	$firstName = "";
 	$lastName = "";
-	//TODO: NEED TO CHANGE THIS      UN          PW               table name
 	$conn = new mysqli("localhost", "TheBeast", "WeLoveCOP4331", "OurDatabase"); 	
 	if( $conn->connect_error )
 	{
