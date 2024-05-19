@@ -1,4 +1,5 @@
-const urlBase = 'http://COP4331-5.com/LAMPAPI';
+//TODO: Add more functions to call the API (Modify)
+const urlBase = 'http://contact-manager.rodlop.net/LAMPAPI';
 const extension = 'php';
 
 let userId = 0;
@@ -11,18 +12,23 @@ function doLogin()
 	firstName = "";
 	lastName = "";
 	
+	//Grab the login and password from the corresponding fields
 	let login = document.getElementById("loginName").value;
 	let password = document.getElementById("loginPassword").value;
+	//It's always a good idea to NEVER store plaintext passwords
 //	var hash = md5( password );
 	
 	document.getElementById("loginResult").innerHTML = "";
 
+	//Package the information into a JSON notation
+	//For the Login.php we need to pass 'login' and 'password' to query the database
 	let tmp = {login:login,password:password};
 //	var tmp = {login:login,password:hash};
 	let jsonPayload = JSON.stringify( tmp );
 	
 	let url = urlBase + '/Login.' + extension;
 
+	//Use the API endpoint (Login.php)
 	let xhr = new XMLHttpRequest();
 	xhr.open("POST", url, true);
 	xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
@@ -46,7 +52,7 @@ function doLogin()
 
 				saveCookie();
 	
-				window.location.href = "color.html";
+				window.location.href = "crud.html";
 			}
 		};
 		xhr.send(jsonPayload);
@@ -107,12 +113,15 @@ function doLogout()
 	document.cookie = "firstName= ; expires = Thu, 01 Jan 1970 00:00:00 GMT";
 	window.location.href = "index.html";
 }
-
+//TODO: Change this for add contact
 function addColor()
 {
+	//Get the new contact to add
+	//TODO: There will need to be MULTIPLE inputs here from one of the pages
 	let newColor = document.getElementById("colorText").value;
 	document.getElementById("colorAddResult").innerHTML = "";
 
+	//Create a JSON payload with fields for a new contact filled in
 	let tmp = {color:newColor,userId,userId};
 	let jsonPayload = JSON.stringify( tmp );
 
@@ -125,6 +134,7 @@ function addColor()
 	{
 		xhr.onreadystatechange = function() 
 		{
+			//Display that the contact was added successfully
 			if (this.readyState == 4 && this.status == 200) 
 			{
 				document.getElementById("colorAddResult").innerHTML = "Color has been added";
@@ -132,20 +142,23 @@ function addColor()
 		};
 		xhr.send(jsonPayload);
 	}
+	//There was some error when adding a new contact
 	catch(err)
 	{
 		document.getElementById("colorAddResult").innerHTML = err.message;
 	}
 	
 }
-
+//TODO: Search for a contact
 function searchColor()
 {
 	let srch = document.getElementById("searchText").value;
 	document.getElementById("colorSearchResult").innerHTML = "";
 	
+	//TODO: Change this to an array Leinecker video will help with this 
 	let colorList = "";
 
+	//Create a JSON payload with fields for a contact to search for
 	let tmp = {search:srch,userId:userId};
 	let jsonPayload = JSON.stringify( tmp );
 
@@ -158,6 +171,7 @@ function searchColor()
 	{
 		xhr.onreadystatechange = function() 
 		{
+			//Display that the contact was added successfully
 			if (this.readyState == 4 && this.status == 200) 
 			{
 				document.getElementById("colorSearchResult").innerHTML = "Color(s) has been retrieved";
@@ -177,6 +191,7 @@ function searchColor()
 		};
 		xhr.send(jsonPayload);
 	}
+	//There was some error when adding a new contact
 	catch(err)
 	{
 		document.getElementById("colorSearchResult").innerHTML = err.message;
