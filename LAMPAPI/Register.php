@@ -8,7 +8,6 @@
 	$login = "";
 	$password = "";
 
-	//TODO: NEED TO CHANGE THIS      UN          PW               table name
 	$conn = new mysqli("localhost", "TheBeast", "WeLoveCOP4331", "OurDatabase"); 	
 	if( $conn->connect_error )
 	{
@@ -16,17 +15,18 @@
 	}
 	else
 	{
+		//TODO: Might have to check to see if the login and password exist already
+
 		//This query works for inserting a NEW user to the Users table
 		$stmt = $conn->prepare("INSERT into Users (FirstName,LastName,Login,Password) VALUES (?,?,?,?)");
 		//Bind the firstName, lastName, login and password to the '?' in our query
-		$stmt->bind_param("ssss", $inData["firstName"], $inData["lastName"], $inData["login"], $inData["password"]);
+		$stmt->bind_param("ssss", $inData["FirstName"], $inData["LastName"], $inData["Login"], $inData["Password"]);
 		$stmt->execute();
-		$result = $stmt->get_result();
 
 		//Return the full name of the user along with their assigned ID (go to same stage as login)
-		if($result)
+		if($stmt->affected_rows > 0)
 		{
-			returnWithInfo( $inData['firstName'], $inData['lastName'], $row['ID'] );
+			returnWithInfo( $inData['FirstName'], $inData['LastName'], $conn->insert_id);
 		}
 		else
 		{
@@ -50,13 +50,13 @@
 	
 	function returnWithError( $err )
 	{
-		$retValue = '{"id":0,"firstName":"","lastName":"","error":"' . $err . '"}';
+		$retValue = '{"ID":0,"FirstName":"","LastName":"","error":"' . $err . '"}';
 		sendResultInfoAsJson( $retValue );
 	}
 	
 	function returnWithInfo( $firstName, $lastName, $id )
 	{
-		$retValue = '{"id":' . $id . ',"firstName":"' . $firstName . '","lastName":"' . $lastName . '","error":""}';
+		$retValue = '{"ID":' . $id . ',"FirstName":"' . $firstName . '","LastName":"' . $lastName . '","error":""}';
 		sendResultInfoAsJson( $retValue );
 	}
 	

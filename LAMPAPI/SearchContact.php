@@ -1,33 +1,45 @@
 <?php
 	//Search for a certain contact with partial name matching
 	$inData = getRequestInfo();
-	
-	$id = 0;
-	$firstName = "";
-	$lastName = "";
-	//TODO: NEED TO CHANGE THIS      UN          PW               table name
-	$conn = new mysqli("localhost", "TheBeast", "WeLoveCOP4331", "COP4331"); 	
+	//Structure ALL incoming Strings for the 'like' clause	
+	$firstName = "%".$inData["FirstName"]."%";
+	$lastName = "%".$inData["LastName"]."%";
+	//Keep track of the amount of matches we find
+	$searchCount= 0;
+	$searchResult = "";
+
+	$conn = new mysqli("localhost", "TheBeast", "WeLoveCOP4331", "OurDatabase"); 	
 	if( $conn->connect_error )
 	{
 		returnWithError( $conn->connect_error );
 	}
 	else
 	{
-		//TODO: Need to change this too, probably insert??
-		$stmt = $conn->prepare("SELECT ID,firstName,lastName FROM Users WHERE Login=? AND Password =?");
-		$stmt->bind_param("ss", $inData["login"], $inData["password"]);
+		//Set up the SELECT query and run it
+		$stmt = $conn->prepare("SELECT FirstName,LastName,Phone,Email,UserID,ID FROM Contacts WHERE (FirstName like ? OR LastName like ?) AND UserID = ?");
+		$stmt->bind_param("ssi", $firstName, $lastName, $inData["UserID"]);
 		$stmt->execute();
 		$result = $stmt->get_result();
 
-		if( $row = $result->fetch_assoc()  )
-		{
-			returnWithInfo( $row['firstName'], $row['lastName'], $row['ID'] );
-		}
-		else
-		{
-			returnWithError("No Records Found");
+		//Loop through all of the rows that matched the search	
+		while($row = $result->fetch_assoc()){
+			//Append a comma only if we've append the first result first
+			if($searchCount>0)
+			{
+				$searchResult .= ",";
+			}
+			$searchCount++;
+			$searchResult .='{"FirstName" : "' . $row["FirstName"]. '", "LastName" : "' . $row["LastName"]. '", "Phone" : "' . $row["Phone"]. '", "Email" : "' . $row["Email"]. '", "UserID" : "' . $row["UserID"].'", "ID" : "' . $row["ID"]. '"}';
 		}
 
+		//We found no contact matching our search
+		if($searchCount == 0){
+			returnWithError("No Contacts Found");
+		}
+		//We found at least one contact matching our search
+		else{
+			returnWithInfo($searchResult);
+		}
 		$stmt->close();
 		$conn->close();
 	}
@@ -45,13 +57,13 @@
 	
 	function returnWithError( $err )
 	{
-		$retValue = '{"id":0,"firstName":"","lastName":"","error":"' . $err . '"}';
+		$retValue = '{"ID":0,"FirstName":"","LastName":"","error":"' . $err . '"}';
 		sendResultInfoAsJson( $retValue );
 	}
 	
-	function returnWithInfo( $firstName, $lastName, $id )
+	function returnWithInfo( $searchResults )
 	{
-		$retValue = '{"id":' . $id . ',"firstName":"' . $firstName . '","lastName":"' . $lastName . '","error":""}';
+		$retValue = '{"Results":[' . $searchResults . '],"error":""}';
 		sendResultInfoAsJson( $retValue );
 	}
 	

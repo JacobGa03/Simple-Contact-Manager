@@ -9,8 +9,7 @@
 	$phoneNumber = "";
 	$email = "";
 
-	//TODO: NEED TO CHANGE THIS      UN          PW               table name
-	$conn = new mysqli("localhost", "TheBeast", "WeLoveCOP4331", "COP4331"); 	
+	$conn = new mysqli("localhost", "TheBeast", "WeLoveCOP4331", "OurDatabase"); 	
 	if( $conn->connect_error )
 	{
 		returnWithError( $conn->connect_error );
@@ -18,13 +17,16 @@
 	else
 	{
 		//TODO: Need to change this too, probably insert??
-		$stmt = $conn->prepare("INSERT INTO Contacts (FirstName,LastName,Favorite,Phone,Email,UserID) VALUES (firstName,lastName,favorite,phoneNumber,email,id)");
+		$stmt = $conn->prepare("INSERT INTO Contacts (FirstName,LastName,Favorite,Phone,Email,UserID) VALUES (?,?,?,?,?,?)");
+		$stmt->bind_param("ssissi", $inData["FirstName"], $inData["LastName"], $inData["Favorite"], $inData["Phone"], $inData["Email"], $inData["UserID"]);
 		$stmt->execute();
 		$result = $stmt->get_result();
 
-		if( $row = $result->fetch_assoc()  )
+		//Upon successful insertion, return the new contact added
+		if($result)
 		{
-			returnWithInfo( $row['firstName'], $row['lastName'], $row['favorite'], $row['phoneNumber'], $row['email'], $row['ID']);
+			//Same issue w/ getting the id of the newly added contact
+			returnWithInfo( $inData['FirstName'], $inData['LastName'], $inData['UserID']);
 		}
 		else
 		{
@@ -48,13 +50,13 @@
 	
 	function returnWithError( $err )
 	{
-		$retValue = '{"id":0,"firstName":"","lastName":"","error":"' . $err . '"}';
+		$retValue = '{"ID":0,"FirstName":"","LastName":"","error":"' . $err . '"}';
 		sendResultInfoAsJson( $retValue );
 	}
 	
 	function returnWithInfo( $firstName, $lastName, $id )
 	{
-		$retValue = '{"id":' . $id . ',"firstName":"' . $firstName . '","lastName":"' . $lastName . '","error":""}';
+		$retValue = '{"ID":' . $id . ',"FirstName":"' . $firstName . '","LastName":"' . $lastName . '","error":""}';
 		sendResultInfoAsJson( $retValue );
 	}
 	
