@@ -2,8 +2,9 @@
 	//Search for a certain contact with partial name matching
 	$inData = getRequestInfo();
 	//Structure ALL incoming Strings for the 'like' clause	
-	$firstName = "%".$inData["FirstName"]."%";
-	$lastName = "%".$inData["LastName"]."%";
+	$FirstName = "%".$inData["FirstName"]."%";
+	$LastName = "%".$inData["LastName"]."%";
+	$UserID = $inData["UserID"];
 	//Keep track of the amount of matches we find
 	$searchCount= 0;
 	$searchResult = "";
@@ -17,7 +18,7 @@
 	{
 		//Set up the SELECT query and run it
 		$stmt = $conn->prepare("SELECT FirstName,LastName,Phone,Email,UserID,ID FROM Contacts WHERE (FirstName like ? OR LastName like ?) AND UserID = ?");
-		$stmt->bind_param("ssi", $firstName, $lastName, $inData["UserID"]);
+		$stmt->bind_param("ssi", $FirstName, $LastName, $UserID);
 		$stmt->execute();
 		$result = $stmt->get_result();
 

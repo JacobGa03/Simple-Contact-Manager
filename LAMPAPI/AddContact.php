@@ -1,13 +1,14 @@
 <?php
 	//Add a new contact to a specified user's contact list
 	$inData = getRequestInfo();
-	
+	//Capture all of the incoming data from JSON	
 	$id = 0;
-	$firstName = "";
-	$lastName = "";
-	$favorite = 0;
-	$phoneNumber = "";
-	$email = "";
+	$FirstName = $inData["FirstName"];
+	$LastName = $inData["LastName"];
+	$Favorite = $inData["Favorite"];
+	$Phone = $inData["Phone"];
+	$Email = $inData["Email"];
+	$UserID = $inData["UserID"];
 
 	$conn = new mysqli("localhost", "TheBeast", "WeLoveCOP4331", "OurDatabase"); 	
 	if( $conn->connect_error )
@@ -16,17 +17,17 @@
 	}
 	else
 	{
-		//TODO: Need to change this too, probably insert??
+		//Prepare the query and bind the variables to the incoming JSON object
 		$stmt = $conn->prepare("INSERT INTO Contacts (FirstName,LastName,Favorite,Phone,Email,UserID) VALUES (?,?,?,?,?,?)");
-		$stmt->bind_param("ssissi", $inData["FirstName"], $inData["LastName"], $inData["Favorite"], $inData["Phone"], $inData["Email"], $inData["UserID"]);
+		$stmt->bind_param("ssissi", $FirstName, $LastName, $Favorite, $Phone, $Email, $UserID);
 		$stmt->execute();
 		$result = $stmt->get_result();
 
 		//Upon successful insertion, return the new contact added
 		if($result)
 		{
-			//Same issue w/ getting the id of the newly added contact
-			returnWithInfo( $inData['FirstName'], $inData['LastName'], $inData['UserID']);
+			//TODO: Fix this somehow to get the auto-generate UserID from the MySQL database
+			returnWithInfo( $FirstName, $LastName, $UserID);
 		}
 		else
 		{

@@ -3,29 +3,30 @@
 	$inData = getRequestInfo();
 	
 	$id = 0;
-	$firstName = "";
-	$lastName = "";
-	$favorite = 0;
-	$phoneNumber = "";
-	$email = "";
+	$FirstName = "%".$inData["FirstName"]."%";
+	$LastName = "%".$inData["LastName"]."%";
+	// $Favorite = $inData["Favorite"];
+	// $Phone = $inData["Phone"];
+	// $Email = $inData["Email"];
+	$UserID = $inData["UserID"];
 
 	//TODO: NEED TO CHANGE THIS      UN          PW               table name
-	$conn = new mysqli("localhost", "TheBeast", "WeLoveCOP4331", "COP4331"); 	
+	$conn = new mysqli("localhost", "TheBeast", "WeLoveCOP4331", "OurDatabase"); 	
 	if( $conn->connect_error )
 	{
 		returnWithError( $conn->connect_error );
 	}
 	else
 	{
-		//TODO: Need to change this too, probably insert??
-		$stmt = $conn->prepare("SELECT ID,firstName,lastName FROM Users WHERE Login=? AND Password =?");
-		$stmt->bind_param("ss", $inData["login"], $inData["password"]);
+		//TODO: Need to change this too, probably??
+		$stmt = $conn->prepare("DELETE FROM Contacts  WHERE (FirstName like ? OR LastName like ?) AND UserID = ?");
+		$stmt->bind_param("ssi", $FirstName, $LastName,$UserID);
 		$stmt->execute();
 		$result = $stmt->get_result();
 
-		if( $row = $result->fetch_assoc()  )
+		if($result)
 		{
-			returnWithInfo( $row['firstName'], $row['lastName'], $row['ID'] );
+			returnWithInfo( $FirstName, $LastName, $UserID);
 		}
 		else
 		{

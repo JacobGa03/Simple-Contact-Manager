@@ -1,10 +1,11 @@
 <?php
 	//Used to login in an already existing user
 	$inData = getRequestInfo();
-	
+	//Capture all of the incoming data from JSON	
 	$id = 0;
-	$FirstName = "";
-	$LastName = "";
+	$Login = $inData["Login"];
+	$Password = $inData["Password"];
+
 	$conn = new mysqli("localhost", "TheBeast", "WeLoveCOP4331", "OurDatabase"); 	
 	if( $conn->connect_error )
 	{
@@ -15,7 +16,7 @@
 		//This query works for selecting Users that are ALREADY in the database
 		$stmt = $conn->prepare("SELECT ID,FirstName,LastName FROM Users WHERE Login=? AND Password =?");
 		//Bind the login and password to the '?' in our query
-		$stmt->bind_param("ss", $inData["Login"], $inData["Password"]);
+		$stmt->bind_param("ss", $Login, $Password);
 		$stmt->execute();
 		$result = $stmt->get_result();
 
