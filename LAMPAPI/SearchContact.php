@@ -1,58 +1,51 @@
 <?php
-	//Search for a certain contact with partial name matching
-	$inData = getRequestInfo();
-	
-	$id = 0;
-	$firstName = "";
-	$lastName = "";
-	//TODO: NEED TO CHANGE THIS      UN          PW               table name
-	$conn = new mysqli("localhost", "TheBeast", "WeLoveCOP4331", "COP4331"); 	
-	if( $conn->connect_error )
-	{
-		returnWithError( $conn->connect_error );
-	}
-	else
-	{
-		//TODO: Need to change this too, probably insert??
-		$stmt = $conn->prepare("SELECT ID,firstName,lastName FROM Users WHERE Login=? AND Password =?");
-		$stmt->bind_param("ss", $inData["login"], $inData["password"]);
+	require 'common.php';
+	$required = [
+	'firstName',
+	'lastName',
+	'favorite',
+	'phone',
+	'email',
+	'userId'
+	];
+	//Get the input JSON and connect to the database
+	$inData = getRequestParams($required);
+	$conn = getDbConnection();
+
+	//Set the first and last names to %%, so they can be partially matched
+	$inData['firstName'] = '%'.$inData['firstName'].'%';
+	$inData['lastName'] = '%'.$inData['lastName'].'%';
+	//Keep track of the total matches found
+	$searchCount = 0;
+	//Keep an array of Contact JSON objects
+	$searchResult = "";
+
+	try{
+		//Find the user within the database
+		$stmt = $conn->prepare('SELECT * FROM Contacts WHERE (`firstName` LIKE ? OR `lastName` LIKE ?) AND `userId` = ?');
+		$stmt->bind_param('ssi', $inData['firstName'], $inData['lastName'], $inData['userId']);
 		$stmt->execute();
-		$result = $stmt->get_result();
+		$rslt = $stmt->get_result();
 
-		if( $row = $result->fetch_assoc()  )
-		{
-			returnWithInfo( $row['firstName'], $row['lastName'], $row['ID'] );
+		//Loop through all of the rows that matched the search	
+		while($row = $rslt->fetch_assoc()){
+			//Append a comma only if we've append the first result first
+			if($searchCount>0){
+				$searchResult .= ",";
+			}
+			$searchCount++;
+			$searchResult .= '{"firstName" : "' . $row["FirstName"]. '", "lastName" : "' . $row["LastName"]. '", "phone" : "' . $row["Phone"]. '", "email" : "' . $row["Email"]. '", "userId" : "' . $row["UserID"].'", "Id" : "' . $row["ID"]. '"}';
 		}
-		else
-		{
-			returnWithError("No Records Found");
+
+		//We found no contact matching our search
+		if($searchCount == 0){
+			returnError(CODE_NOT_FOUND,"{$inData['firstName']} {$inData['lastName']} not found");
 		}
-
-		$stmt->close();
-		$conn->close();
+		//Return the list of Contacts matched
+		returnJsonString($searchResult);
+	}catch(mysqli_sql_exception $ex){
+		returnError(CODE_SERVER_ERROR, $ex->getMessage());
+	} finally {
+		conn->close();
 	}
-	
-	function getRequestInfo()
-	{
-		return json_decode(file_get_contents('php://input'), true);
-	}
-
-	function sendResultInfoAsJson( $obj )
-	{
-		header('Content-type: application/json');
-		echo $obj;
-	}
-	
-	function returnWithError( $err )
-	{
-		$retValue = '{"id":0,"firstName":"","lastName":"","error":"' . $err . '"}';
-		sendResultInfoAsJson( $retValue );
-	}
-	
-	function returnWithInfo( $firstName, $lastName, $id )
-	{
-		$retValue = '{"id":' . $id . ',"firstName":"' . $firstName . '","lastName":"' . $lastName . '","error":""}';
-		sendResultInfoAsJson( $retValue );
-	}
-	
 ?>

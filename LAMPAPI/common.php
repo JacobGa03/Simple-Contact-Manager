@@ -59,6 +59,18 @@ function returnJson(array $out_data) {
   exit();
 }
 
+/* Take in a string that represents an array of JSON objects
+*  and send it in the body of the response.
+*  Needed for when we build an "array" of JSON objects
+*  that needs to be returned to the front end.
+*  Calling this ends the PHP script.
+*/ 
+function returnJsonString(string $searchResults ){
+  header('Content-Type: application/json');
+  echo('{"Results":[' . $searchResults . '],"error":""}');
+  exit();
+}
+
 /*
  * Sets the HTTP response code and sends a JSON object with
  * a single error value as the response. Exits the PHP script.

@@ -6,7 +6,7 @@
 	'password'
 	];
 	//Get the input JSON and connect to the database
-	$inData = getInputData($required);
+	$inData = getRequestParams($required);
 	$conn = getDbConnection();
 
 	try{
