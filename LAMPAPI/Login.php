@@ -1,11 +1,15 @@
 <?php
-	//Used to login in an already existing user
-	$inData = getRequestInfo();
+
+	require 'common.php';
+
+	$required = ['username', 'password'];
+	$inData = getRequestParams($required);
 	
 	$id = 0;
 	$FirstName = "";
 	$LastName = "";
-	$conn = new mysqli("localhost", "TheBeast", "WeLoveCOP4331", "OurDatabase"); 	
+
+	$conn = getDbConnection(); 	
 	if( $conn->connect_error )
 	{
 		returnWithError( $conn->connect_error );
@@ -15,7 +19,7 @@
 		//This query works for selecting Users that are ALREADY in the database
 		$stmt = $conn->prepare("SELECT ID,FirstName,LastName FROM Users WHERE Login=? AND Password =?");
 		//Bind the login and password to the '?' in our query
-		$stmt->bind_param("ss", $inData["Login"], $inData["Password"]);
+		$stmt->bind_param("ss", $inData["username"], $inData["password"]);
 		$stmt->execute();
 		$result = $stmt->get_result();
 
@@ -27,7 +31,7 @@
 		//User isn't in the database
 		else
 		{
-			returnWithError("No Records Found");
+			returnError(CODE_NOT_FOUND, "No Records Found");
 		}
 
 		$stmt->close();
