@@ -1,6 +1,6 @@
 <?php
 
-/* This file containts common variables for the LAMP API,
+/* This file contains common variables for the LAMP API,
  * as well as frequently used utility functions. Use as:
  * include 'common.php';
  */
