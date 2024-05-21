@@ -23,6 +23,9 @@
 		}
 		//Grab the id of the User
 		$inData['id'] = $row['ID'];
+		// Grab their firstName, lastName too
+		$inData['firstName'] = $row['FirstName'];
+		$inData['lastName'] = $row['LastName'];
 		//Return the user found back as JSON
 		returnJson($inData);
 	}catch(mysqli_sql_exception $ex){

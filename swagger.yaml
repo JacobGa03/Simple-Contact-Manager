@@ -60,7 +60,7 @@ paths:
         200:
           description: Authentication successful
           schema:
-            $ref: '#/definitions/UserFullInfo'
+            $ref: '#/definitions/UserLoggedInInfo'
         404:
           description: Authentication failure, either wrong username or password
           schema:
@@ -76,7 +76,7 @@ paths:
       description: Creates a new application user
       parameters:
         - in: body
-          name: Login
+          name: Register
           schema:
             type: object
             properties:
@@ -100,7 +100,7 @@ paths:
         200:
           description: Registration successful
           schema:
-            $ref: '#/definitions/UserFullInfo'
+            $ref: '#/definitions/UserLoggedInInfo'
         409:
           description: Username already exists
           schema:
@@ -110,14 +110,59 @@ paths:
         500:
             $ref: '#/responses/ServerError'
           
-
+  /AddContact.php:
+    post:
+      summary: Add new entry to the contact list
+      parameters:
+      - in: body
+        name: AddContact
+        schema:
+          $ref: '#/definitions/ContactAddInfo'
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: '#/definitions/ContactAddInfo'
+        400:
+            $ref: '#/responses/BadRequest'
+        500:
+            $ref: '#/responses/ServerError'
+            
+  /SearchContact.php:
+    post:
+      summary: Retrieve a list of contacts matching the user ID and an optional name partial match (only on firstName, lastName)
+      parameters:
+      - in: body
+        name: SearchContact
+        schema:
+          $ref : '#/definitions/ContactAddInfo'
+      responses:
+        200:
+          description: Success, at least one match found
+          schema:
+            type: object
+            properties:
+              Results:
+                type: array
+                description: List of objects, each one is a contact information
+                items:
+                  $ref: '#/definitions/ContactSearchInfo'
+        404:
+          description: No matches found or contact list is empty
+          schema:
+            $ref: '#/definitions/ErrorInfo'
+        400:
+          $ref: '#/responses/BadRequest'
+        500:
+          $ref: '#/responses/ServerError'
+      
 definitions:
-  UserFullInfo:
+  UserLoggedInInfo:
     type: object
     properties:
       id:
         type: integer
-        description: The ID of an application user
+        description: The ID of the application user
         example: 123
       username:
         type: string
@@ -131,6 +176,56 @@ definitions:
         type: string
         description: Last name property of the application user
         example: Doe
+  ContactAddInfo:
+    type: object
+    properties:
+      firstName:
+        type: string
+        description: First name property of contact
+        example: John
+      lastName:
+        type: string
+        description: Last name property of contact
+        example: Doe
+      phone:
+        type: string
+        description: Phone number property of contact
+        example: 18001239876
+      email:
+        type: string
+        description: Email address property of contact
+        example: noreply@example.com
+      userId:
+        type: integer
+        description: The ID of the application user
+        example: 123
+  ContactSearchInfo:
+    type: object
+    properties:
+      firstName:
+        type: string
+        description: First name property of contact
+        example: John
+      lastName:
+        type: string
+        description: Last name property of contact
+        example: Doe
+      phone:
+        type: string
+        description: Phone number property of contact
+        example: 18001239876
+      email:
+        type: string
+        description: Email address property of contact
+        example: noreply@example.com
+      userId:
+        type: integer
+        description: The ID of the application user
+        example: 123
+      id:
+        type: integer
+        description: The ID of the entry in the contact list, used to reference the contact for modification
+        example: 456
   ErrorInfo:
     properties:
       error:
@@ -144,6 +239,6 @@ responses:
     schema:
       $ref: '#/definitions/ErrorInfo'
   ServerError:
-    description: Error or exception on back-end
+    description: Unknown error or exception on back-end
     schema:
       $ref: '#/definitions/ErrorInfo'
