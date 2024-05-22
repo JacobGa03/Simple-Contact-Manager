@@ -20,6 +20,8 @@
 		$stmt->execute();
 		//There is code to get the correct id to return to the user
 		$rslt = $stmt->get_result();
+		//Grab the id of inserted contact. This will make deleting easier
+		$inData['id'] = $conn->insert_id;
 
 		//Return the $inData back to the user to show a successful insertion
 		returnJson($inData);

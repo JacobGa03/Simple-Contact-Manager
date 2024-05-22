@@ -8,7 +8,8 @@
 	'favorite',
 	'phone',
 	'email',
-	'userId'
+	'userId',
+	'id'
 	];
 	//Get the input JSON and connect to the database
 	$inData = getRequestParams($required);
@@ -21,8 +22,11 @@
 	
 	try{
 		//DELETE the Contact from the database
-		$stmt = $conn->prepare("DELETE FROM Contacts  WHERE FirstName like ? AND LastName like ? AND Favorite = ? AND Phone like ? AND Email like ? AND UserID = ?");
-		$stmt->bind_param("ssissi", $inData['firstName'],$inData['lastName'],$inData['favorite'],$inData['phone'],$inData['email'],$inData['userId']);
+		// $stmt = $conn->prepare("DELETE FROM Contacts WHERE FirstName like ? AND LastName like ? AND Favorite = ? AND Phone like ? AND Email like ? AND UserID = ?");
+		// $stmt->bind_param("ssissi", $inData['firstName'],$inData['lastName'],$inData['favorite'],$inData['phone'],$inData['email'],$inData['userId']);
+		//DELETE a specific row identified by ID (which is auto-incremented by MySQL)
+		$stmt = $conn->prepare("DELETE FROM Contacts WHERE ID = ?");
+		$stmt->bind_param("i", $inData['id']);
 		$stmt->execute();
 		$rslt = $stmt->get_result();
 

@@ -15,6 +15,8 @@
 	//Set the first and last names to %%, so they can be partially matched
 	$inData['firstName'] = '%'.$inData['firstName'].'%';
 	$inData['lastName'] = '%'.$inData['lastName'].'%';
+	$inData['phone'] = '%'.$inData['phone'].'%';
+	$inData['email'] = '%'.$inData['email'].'%';
 	//Keep track of the total matches found
 	$searchCount = 0;
 	//Keep an array of Contact JSON objects
@@ -22,9 +24,8 @@
 
 	try{
 		//Find the user within the database
-		//TODO: Watch the Leinecker video on "Return JSON objects" 
-		$stmt = $conn->prepare('SELECT * FROM Contacts WHERE (`firstName` LIKE ? OR `lastName` LIKE ?) AND `userId` = ?');
-		$stmt->bind_param('ssi', $inData['firstName'], $inData['lastName'], $inData['userId']);
+		$stmt = $conn->prepare('SELECT * FROM Contacts WHERE (`firstName` LIKE ? OR `lastName` LIKE ? OR `favorite` = ? OR `phone` LIKE ? OR `email` LIKE ?) AND `userId` = ?');
+		$stmt->bind_param('ssissi', $inData['firstName'], $inData['lastName'], $inData['favorite'], $inData['phone'], $inData['email'], $inData['userId']);
 		$stmt->execute();
 		$rslt = $stmt->get_result();
 
