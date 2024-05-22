@@ -18,6 +18,7 @@
 		$stmt = $conn->prepare('INSERT INTO Contacts (FirstName,LastName,Favorite,Phone,Email,UserID) VALUES (?,?,?,?,?,?)');
 		$stmt->bind_param('ssissi', $inData['firstName'], $inData['lastName'], $inData['favorite'],$inData['phone'],$inData['email'],$inData['userId']);
 		$stmt->execute();
+		//There is code to get the correct id to return to the user
 		$rslt = $stmt->get_result();
 
 		//Return the $inData back to the user to show a successful insertion

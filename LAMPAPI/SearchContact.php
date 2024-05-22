@@ -22,6 +22,7 @@
 
 	try{
 		//Find the user within the database
+		//TODO: Watch the Leinecker video on "Return JSON objects" 
 		$stmt = $conn->prepare('SELECT * FROM Contacts WHERE (`firstName` LIKE ? OR `lastName` LIKE ?) AND `userId` = ?');
 		$stmt->bind_param('ssi', $inData['firstName'], $inData['lastName'], $inData['userId']);
 		$stmt->execute();
