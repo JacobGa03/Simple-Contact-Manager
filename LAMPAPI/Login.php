@@ -1,60 +1,36 @@
 <?php
-	//Used to login in an already existing user
-	$inData = getRequestInfo();
-	
-	$id = 0;
-	$firstName = "";
-	$lastName = "";
-	$conn = new mysqli("localhost", "TheBeast", "WeLoveCOP4331", "OurDatabase"); 	
-	if( $conn->connect_error )
-	{
-		returnWithError( $conn->connect_error );
-	}
-	else
-	{
-		//This query works for selecting Users that are ALREADY in the database
-		$stmt = $conn->prepare("SELECT ID,firstName,lastName FROM Users WHERE Login=? AND Password =?");
-		//Bind the login and password to the '?' in our query
-		$stmt->bind_param("ss", $inData["login"], $inData["password"]);
+	require 'common.php';
+	//Set the required fields to be filled in by the JSON
+	$required = [
+	'username',
+	'password'
+	];
+	//Get the input JSON and connect to the database
+	$inData = getRequestParams($required);
+	$conn = getDbConnection();
+
+	try{
+		//Find the user within the database
+		$stmt = $conn->prepare('SELECT * FROM Users WHERE Login = ? AND Password = ?');
+		$stmt->bind_param('ss', $inData['username'], $inData['password']);
 		$stmt->execute();
-		$result = $stmt->get_result();
+		$rslt = $stmt->get_result();
+		$row = $rslt->fetch_assoc();
 
-		//Return the full name of the user along with their assigned ID
-		if( $row = $result->fetch_assoc()  )
-		{
-			returnWithInfo( $row['firstName'], $row['lastName'], $row['ID'] );
+		//The login and password weren't found in the Users table
+		if($row == null){
+    		returnError(CODE_NOT_FOUND, "Username/Password not found");
 		}
-		//User isn't in the database
-		else
-		{
-			returnWithError("No Records Found");
-		}
-
-		$stmt->close();
-		$conn->close();
+		//Grab the id of the User
+		$inData['id'] = $row['ID'];
+		// Grab their firstName, lastName too
+		$inData['firstName'] = $row['FirstName'];
+		$inData['lastName'] = $row['LastName'];
+		//Return the user found back as JSON
+		returnJson($inData);
+	}catch(mysqli_sql_exception $ex){
+		returnError(CODE_SERVER_ERROR, $ex->getMessage());
+	} finally {
+		conn->close();
 	}
-	
-	function getRequestInfo()
-	{
-		return json_decode(file_get_contents('php://input'), true);
-	}
-
-	function sendResultInfoAsJson( $obj )
-	{
-		header('Content-type: application/json');
-		echo $obj;
-	}
-	
-	function returnWithError( $err )
-	{
-		$retValue = '{"id":0,"firstName":"","lastName":"","error":"' . $err . '"}';
-		sendResultInfoAsJson( $retValue );
-	}
-	
-	function returnWithInfo( $firstName, $lastName, $id )
-	{
-		$retValue = '{"id":' . $id . ',"firstName":"' . $firstName . '","lastName":"' . $lastName . '","error":""}';
-		sendResultInfoAsJson( $retValue );
-	}
-	
 ?>

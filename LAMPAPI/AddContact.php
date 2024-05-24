@@ -1,61 +1,33 @@
 <?php
-	//Add a new contact to a specified user's contact list
-	$inData = getRequestInfo();
+	require 'common.php';
+	//Set the required fields to be filled in by the JSON
+	$required = [
+	'firstName',
+	'lastName',
+	'favorite',
+	'phone',
+	'email',
+	'userId'
+	];
+	//Get the input JSON and connect to the database
+	$inData = getRequestParams($required);
+	$conn = getDbConnection();
 	
-	$id = 0;
-	$firstName = "";
-	$lastName = "";
-	$favorite = 0;
-	$phoneNumber = "";
-	$email = "";
-
-	//TODO: NEED TO CHANGE THIS      UN          PW               table name
-	$conn = new mysqli("localhost", "TheBeast", "WeLoveCOP4331", "COP4331"); 	
-	if( $conn->connect_error )
-	{
-		returnWithError( $conn->connect_error );
-	}
-	else
-	{
-		//TODO: Need to change this too, probably insert??
-		$stmt = $conn->prepare("INSERT INTO Contacts (FirstName,LastName,Favorite,Phone,Email,UserID) VALUES (firstName,lastName,favorite,phoneNumber,email,id)");
+	try{
+		//INSERT the new Contact into the database
+		$stmt = $conn->prepare('INSERT INTO Contacts (FirstName,LastName,Favorite,Phone,Email,UserID) VALUES (?,?,?,?,?,?)');
+		$stmt->bind_param('ssissi', $inData['firstName'], $inData['lastName'], $inData['favorite'],$inData['phone'],$inData['email'],$inData['userId']);
 		$stmt->execute();
-		$result = $stmt->get_result();
+		//There is code to get the correct id to return to the user
+		$rslt = $stmt->get_result();
+		//Grab the id of inserted contact. This will make deleting easier
+		$inData['id'] = $conn->insert_id;
 
-		if( $row = $result->fetch_assoc()  )
-		{
-			returnWithInfo( $row['firstName'], $row['lastName'], $row['favorite'], $row['phoneNumber'], $row['email'], $row['ID']);
-		}
-		else
-		{
-			returnWithError("No Records Found");
-		}
-
-		$stmt->close();
-		$conn->close();
+		//Return the $inData back to the user to show a successful insertion
+		returnJson($inData);
+	}catch(mysqli_sql_exception $ex){
+		returnError(CODE_SERVER_ERROR, $ex->getMessage());
+	}finally{
+		conn->close();
 	}
-	
-	function getRequestInfo()
-	{
-		return json_decode(file_get_contents('php://input'), true);
-	}
-
-	function sendResultInfoAsJson( $obj )
-	{
-		header('Content-type: application/json');
-		echo $obj;
-	}
-	
-	function returnWithError( $err )
-	{
-		$retValue = '{"id":0,"firstName":"","lastName":"","error":"' . $err . '"}';
-		sendResultInfoAsJson( $retValue );
-	}
-	
-	function returnWithInfo( $firstName, $lastName, $id )
-	{
-		$retValue = '{"id":' . $id . ',"firstName":"' . $firstName . '","lastName":"' . $lastName . '","error":""}';
-		sendResultInfoAsJson( $retValue );
-	}
-	
 ?>

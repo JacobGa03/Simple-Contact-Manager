@@ -1,0 +1,244 @@
+swagger: "2.0"
+
+info:
+  title: "Simple-Contact-Manager API"
+  version: "1"
+  
+host: contact-manager.rodlop.net
+basePath: /LAMPAPI
+schemes:
+  - http
+
+consumes:
+  - application/json
+produces:
+  - application/json
+  
+paths:
+  /Testing.php:
+    post:
+      summary: Basic testing endpoint
+      description: This endpoint can be used to test if the server is up.
+      responses:
+        200:
+          description: OK
+          schema:
+            type: object
+            properties:
+              api_name: 
+                type: string
+                example: simple-contact-manager
+              api_version:
+                type: string
+                example: 1
+              date:
+                type: string
+                description: The current date and time from the server
+                example: 2024-05-20T01:09:30+00:00
+        500:
+          $ref: '#/responses/ServerError'
+
+  /Login.php:
+    post:
+      summary: Application user login endpoint
+      description: Performs user authentication
+      parameters:
+        - in: body
+          name: Login
+          schema:
+            type: object
+            properties:
+              username:
+                type: string
+                description: Authentication username
+                example: RickL
+              password:
+                type: string
+                description: Authentication password
+                example: WeLoveCOP4331
+      responses:
+        200:
+          description: Authentication successful
+          schema:
+            $ref: '#/definitions/UserLoggedInInfo'
+        404:
+          description: Authentication failure, either wrong username or password
+          schema:
+            $ref: '#/definitions/ErrorInfo'
+        400:
+          $ref: '#/responses/BadRequest'
+        500:
+          $ref: '#/responses/ServerError'
+          
+  /Register.php:
+    post:
+      summary: New user registration endpoint
+      description: Creates a new application user
+      parameters:
+        - in: body
+          name: Register
+          schema:
+            type: object
+            properties:
+              username:
+                type: string
+                description: Username for the new user
+                example: RickL
+              password:
+                type: string
+                description: Password for the new user
+                example: WeLoveCOP4331
+              firstName:
+                type: string
+                description: First name for the new user
+                example: John
+              lastName:
+                type: string
+                description: Last name for the new user
+                example: Doe
+      responses:
+        200:
+          description: Registration successful
+          schema:
+            $ref: '#/definitions/UserLoggedInInfo'
+        409:
+          description: Username already exists
+          schema:
+            $ref: '#/definitions/ErrorInfo'
+        400:
+            $ref: '#/responses/BadRequest'
+        500:
+            $ref: '#/responses/ServerError'
+          
+  /AddContact.php:
+    post:
+      summary: Add new entry to the contact list
+      parameters:
+      - in: body
+        name: AddContact
+        schema:
+          $ref: '#/definitions/ContactAddInfo'
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: '#/definitions/ContactAddInfo'
+        400:
+            $ref: '#/responses/BadRequest'
+        500:
+            $ref: '#/responses/ServerError'
+            
+  /SearchContact.php:
+    post:
+      summary: Retrieve a list of contacts matching the user ID and an optional name partial match (only on firstName, lastName)
+      parameters:
+      - in: body
+        name: SearchContact
+        schema:
+          $ref : '#/definitions/ContactAddInfo'
+      responses:
+        200:
+          description: Success, at least one match found
+          schema:
+            type: object
+            properties:
+              Results:
+                type: array
+                description: List of objects, each one is a contact information
+                items:
+                  $ref: '#/definitions/ContactSearchInfo'
+        404:
+          description: No matches found or contact list is empty
+          schema:
+            $ref: '#/definitions/ErrorInfo'
+        400:
+          $ref: '#/responses/BadRequest'
+        500:
+          $ref: '#/responses/ServerError'
+      
+definitions:
+  UserLoggedInInfo:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: The ID of the application user
+        example: 123
+      username:
+        type: string
+        description: The application login username
+        example: RickL
+      firstName:
+        type: string
+        description: First name property of the application user
+        example: John
+      lastName:
+        type: string
+        description: Last name property of the application user
+        example: Doe
+  ContactAddInfo:
+    type: object
+    properties:
+      firstName:
+        type: string
+        description: First name property of contact
+        example: John
+      lastName:
+        type: string
+        description: Last name property of contact
+        example: Doe
+      phone:
+        type: string
+        description: Phone number property of contact
+        example: 18001239876
+      email:
+        type: string
+        description: Email address property of contact
+        example: noreply@example.com
+      userId:
+        type: integer
+        description: The ID of the application user
+        example: 123
+  ContactSearchInfo:
+    type: object
+    properties:
+      firstName:
+        type: string
+        description: First name property of contact
+        example: John
+      lastName:
+        type: string
+        description: Last name property of contact
+        example: Doe
+      phone:
+        type: string
+        description: Phone number property of contact
+        example: 18001239876
+      email:
+        type: string
+        description: Email address property of contact
+        example: noreply@example.com
+      userId:
+        type: integer
+        description: The ID of the application user
+        example: 123
+      id:
+        type: integer
+        description: The ID of the entry in the contact list, used to reference the contact for modification
+        example: 456
+  ErrorInfo:
+    properties:
+      error:
+        type: string
+        description: The text description of the error.
+        example: "Information about the error"
+
+responses:
+  BadRequest:
+    description: Malformed request or JSON on front-end
+    schema:
+      $ref: '#/definitions/ErrorInfo'
+  ServerError:
+    description: Unknown error or exception on back-end
+    schema:
+      $ref: '#/definitions/ErrorInfo'
