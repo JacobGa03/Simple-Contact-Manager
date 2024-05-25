@@ -9,7 +9,7 @@
 <body>
     <div class="login-container">
         <h2>Register</h2>
-        <form id="register-form" action="/register" method="POST">
+        <form action="/register" method="POST">
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" required>
 
@@ -27,12 +27,6 @@
         <div class="bottom-text">
             Already have an account? <a href="login.html">Login</a>
         </div>
-        <script>
-            document.getElementById('register-form').addEventListener('submit', function(event) {
-                event.preventDefault();
-                window.location.href = 'register_success.html';
-            });
-        </script>
     </div>
 </body>
 </html>
