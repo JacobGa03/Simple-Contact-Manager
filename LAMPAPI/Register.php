@@ -1,63 +1,43 @@
 <?php
-	//Register a new user to the web app (This amounts to adding another user to the User table)
-	$inData = getRequestInfo();
-	
-	$id = 0;
-	$firstName = "";
-	$lastName = "";
-	$login = "";
-	$password = "";
 
-	//TODO: NEED TO CHANGE THIS      UN          PW               table name
-	$conn = new mysqli("localhost", "TheBeast", "WeLoveCOP4331", "OurDatabase"); 	
-	if( $conn->connect_error )
-	{
-		returnWithError( $conn->connect_error );
-	}
-	else
-	{
-		//This query works for inserting a NEW user to the Users table
-		$stmt = $conn->prepare("INSERT into Users (FirstName,LastName,Login,Password) VALUES (?,?,?,?)");
-		//Bind the firstName, lastName, login and password to the '?' in our query
-		$stmt->bind_param("ssss", $inData["firstName"], $inData["lastName"], $inData["login"], $inData["password"]);
-		$stmt->execute();
-		$result = $stmt->get_result();
+require 'common.php';
 
-		//Return the full name of the user along with their assigned ID (go to same stage as login)
-		if($result)
-		{
-			returnWithInfo( $inData['firstName'], $inData['lastName'], $row['ID'] );
-		}
-		else
-		{
-			returnWithError("No Records Found");
-		}
+// Front-end *must* include these in their JSON request
+$required = [
+  'username',
+  'password',
+  'firstName',
+  'lastName'
+];
 
-		$stmt->close();
-		$conn->close();
-	}
-	
-	function getRequestInfo()
-	{
-		return json_decode(file_get_contents('php://input'), true);
-	}
+$inData = getRequestParams($required);
+$conn = getDbConnection();
 
-	function sendResultInfoAsJson( $obj )
-	{
-		header('Content-type: application/json');
-		echo $obj;
-	}
-	
-	function returnWithError( $err )
-	{
-		$retValue = '{"id":0,"firstName":"","lastName":"","error":"' . $err . '"}';
-		sendResultInfoAsJson( $retValue );
-	}
-	
-	function returnWithInfo( $firstName, $lastName, $id )
-	{
-		$retValue = '{"id":' . $id . ',"firstName":"' . $firstName . '","lastName":"' . $lastName . '","error":""}';
-		sendResultInfoAsJson( $retValue );
-	}
-	
-?>
+try {
+  // Query the database to check if the requested username exists
+  $stmt = $conn->prepare('SELECT * FROM Users WHERE `Login` = ?');
+  $stmt->bind_param('s', $inData['username']);
+  $stmt->execute();
+  $rslt = $stmt->get_result();
+
+  // If we're able to fetch at least one row, that means
+  // that the username already exists.
+  if($rslt->fetch_row() != null) {
+    returnError(CODE_CONFLICT, "Username `{$inData['username']}` already exists");
+  }
+
+  // Insert the new user into the database
+  $stmt = $conn->prepare('INSERT INTO Users (FirstName, LastName, Login, Password) VALUES (?,?,?,?)');
+  $stmt->bind_param('ssss', $inData['firstName'], $inData['lastName'], $inData['username'], $inData['password']);
+  $stmt->execute();
+
+  // Generate the response JSON - we can resend the incoming request because
+  // the fields are the same, but add the required ID field of the new user.
+  // ($stmt->insert_id contains the generated AUTO_INCREMENT key from MySQL).
+  $inData['id'] = $stmt->insert_id;
+  returnJson($inData);
+} catch(mysqli_sql_exception $ex) {
+  returnError(CODE_SERVER_ERROR, $ex->getMessage());
+} finally {
+  conn->close();
+}
