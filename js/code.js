@@ -14,8 +14,8 @@ function doLogin()
 	lastName = "";
 	
 	//Grab the login and password from the corresponding fields
-	let login = document.getElementById("loginName").value;
-	let password = document.getElementById("loginPassword").value;
+	let login = document.getElementById("username").value;
+	let password = document.getElementById("password").value;
 	//It's always a good idea to NEVER store plaintext passwords
 //	var hash = md5( password );
 	
@@ -77,10 +77,16 @@ function doRegister(){
 	//Grab the login and password from the corresponding fields
 	let firstName = document.getElementById("firstName").value;
 	let lastName = document.getElementById("lastName").value;
-	let login = document.getElementById("loginName").value;
-	let password = document.getElementById("loginPassword").value;
+	let username = document.getElementById("username").value;
+	let password = document.getElementById("password").value;
+	let confirmPassword = document.getElementById("confirmPassword").value;
 	//It's always a good idea to NEVER store plaintext passwords
-//	var hash = md5( password );
+	if(password != confirmPassword)
+	{
+		document.getElementById("registerResult").innerHTML = "Make sure your passwords match";
+		return;
+	}
+	//	var hash = md5( password );
 	
 	document.getElementById("loginResult").innerHTML = "";
 
@@ -118,12 +124,11 @@ function doRegister(){
 		};
 		xhr.send(jsonPayload);
 	}
+	//There was an error registering a user
 	catch(err)
 	{
 		document.getElementById("loginResult").innerHTML = err.message;
 	}
-
-
 }
 
 function saveCookie()
@@ -278,4 +283,12 @@ function searchContact()
 	{
 		document.getElementById("colorSearchResult").innerHTML = err.message;
 	}
+}
+
+function deleteContact(){
+
+}
+
+function updateContact(){
+
 }

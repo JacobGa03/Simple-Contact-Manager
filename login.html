@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Page</title>
     <link rel="stylesheet" href="css/login.css">
+    <script type="text/javascript" src="/js/code.js"></script>
 </head>
 <body>
     <div class="login-container">
@@ -15,8 +16,10 @@
             
             <label for="password">Password:</label>
             <input type="password" id="password" name="password" required>
-            
-            <input type="submit" value="Login">
+            <!--Once the form is filled in call the doLogin function-->
+            <input type="submit" value="Login" onclick="doLogin();">
+            <!--In order to show if a login was unsuccessful-->
+	        <span id="loginResult"></span>
         </form>
     </div>
 </body>
