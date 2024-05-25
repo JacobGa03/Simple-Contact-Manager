@@ -3,6 +3,9 @@ const urlBase = window.location.origin + '/LAMPAPI';
 //const urlBase = 'http://contact-manager.rodlop.net/LAMPAPI';
 const extension = 'php';
 
+let userId = 0;
+let firstName = '';
+let lastName = '';
 //Log the user into their account when their credentials are entered
 function doLogin()
 {
@@ -73,8 +76,8 @@ function doLogin()
 //Create a new User only if the username isn't already taken
 function doRegister(){
 	//Grab the login and password from the corresponding fields
-	let firstName = document.getElementById("firstName").value;
-	let lastName = document.getElementById("lastName").value;
+	firstName = document.getElementById("firstName").value;
+	lastName = document.getElementById("lastName").value;
 	let username = document.getElementById("username").value;
 	let password = document.getElementById("password").value;
 	let confirmPassword = document.getElementById("confirmPassword").value;
