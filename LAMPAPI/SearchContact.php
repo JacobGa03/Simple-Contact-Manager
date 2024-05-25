@@ -36,7 +36,7 @@
 				$searchResult .= ",";
 			}
 			$searchCount++;
-			$searchResult .= '{"firstName" : "' . $row["FirstName"]. '", "lastName" : "' . $row["LastName"]. '", "phone" : "' . $row["Phone"]. '", "email" : "' . $row["Email"]. '", "userId" : "' . $row["UserID"].'", "Id" : "' . $row["ID"]. '"}';
+			$searchResult .= '{"firstName" : "' . $row["FirstName"]. '", "lastName" : "' . $row["LastName"]. '", "phone" : "' . $row["Phone"]. '", "email" : "' . $row["Email"]. '", "userId" : "' . $row["UserID"].'", "id" : "' . $row["ID"]. '"}';
 		}
 
 		//We found no contact matching our search
