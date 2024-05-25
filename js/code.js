@@ -1,10 +1,8 @@
 //TODO: Add more functions to call the API (Modify)
-const urlBase = 'http://contact-manager.rodlop.net/LAMPAPI';
+const urlBase = window.location.origin + '/LAMPAPI';
+//const urlBase = 'http://contact-manager.rodlop.net/LAMPAPI';
 const extension = 'php';
 
-let userId = 0;
-let firstName = "";
-let lastName = "";
 //Log the user into their account when their credentials are entered
 function doLogin()
 {
@@ -44,12 +42,7 @@ function doLogin()
 				//NOTE: userId is a GLOBAL variable, therefore it can be reached from ANY function
 				userId = jsonObject.id;
 		
-				if( userId < 1 )
-				{		
-					document.getElementById("loginResult").innerHTML = "Username/Password combination incorrect";
-					return;
-				}
-		
+	
 				firstName = jsonObject.firstName;
 				lastName = jsonObject.lastName;
 
@@ -57,23 +50,28 @@ function doLogin()
 	
 				//TODO: Change this to whatever becomes the main dashboard page
 				window.location.href = "crud.html";
-			}
-		};
+      } else if(this.readyState == 4 && this.status != 200) {
+    	  //Parse the JSON response from the API
+				let jsonObject = JSON.parse( xhr.responseText );
+        // API returns status 404 NOT FOUND if not such user exists
+        if(this.status == 404) {
+		      document.getElementById("loginResult").innerHTML = "Login/Password combination incorrect.";
+        } else {
+          // Some other backend error occured, check the browser console for further details
+          console.log('Error from backend: ' + jsonObject.error);
+        }
+      }
+    }
 		xhr.send(jsonPayload);
 	}
 	catch(err)
 	{
-		document.getElementById("loginResult").innerHTML = err.message;
+		document.getElementById("registerResult").innerHTML = err.message;
 	}
 
 }
 //Create a new User only if the username isn't already taken
 function doRegister(){
-	//When we pass the JSON to the API, they will return the UserID to the front end
-	userId = 0;
-	firstName = "";
-	lastName = "";
-	
 	//Grab the login and password from the corresponding fields
 	let firstName = document.getElementById("firstName").value;
 	let lastName = document.getElementById("lastName").value;
@@ -88,11 +86,11 @@ function doRegister(){
 	}
 	//	var hash = md5( password );
 	
-	document.getElementById("loginResult").innerHTML = "";
+	document.getElementById("registerResult").innerHTML = "";
 
 	//Package the information into a JSON notation
 	//To register UN,PW, and both first and last names must be passed
-	let tmp = {username:login,password:password,firstName:firstName,lastName:lastName};
+	let tmp = {username:username,password:password,firstName:firstName,lastName:lastName};
 //	var tmp = {login:login,password:hash};
 	let jsonPayload = JSON.stringify( tmp );
 	
@@ -120,14 +118,24 @@ function doRegister(){
 	
 				//TODO: Change this to whatever becomes the main dashboard page
 				window.location.href = "crud.html";
-			}
+			} else if(this.readyState == 4 && this.status != 200) {
+				//Parse the JSON response from the API
+				let jsonObject = JSON.parse( xhr.responseText );
+        // API returns status 409 CONFLICT if username already exists
+        if(this.status == 409) {
+		      document.getElementById("registerResult").innerHTML = "Username already taken. Please choose another one.";
+        } else {
+          // Some other backend error occured, check the browser console for further details
+          console.log('Error from backend: ' + jsonObject.error);
+        }
+      }
 		};
 		xhr.send(jsonPayload);
 	}
 	//There was an error registering a user
 	catch(err)
 	{
-		document.getElementById("loginResult").innerHTML = err.message;
+		document.getElementById("registerResult").innerHTML = err.message;
 	}
 }
 

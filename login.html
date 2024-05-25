@@ -10,14 +10,14 @@
 <body>
     <div class="login-container">
         <h2>Login</h2>
-        <form action="/login" method="POST">
+        <form>
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" required>
             
             <label for="password">Password:</label>
             <input type="password" id="password" name="password" required>
             <!--Once the form is filled in call the doLogin function-->
-            <input type="submit" value="Login" onclick="doLogin();">
+            <button type="button" onclick="doLogin();">Login</button>
             <!--In order to show if a login was unsuccessful-->
 	        <span id="loginResult"></span>
         </form>
