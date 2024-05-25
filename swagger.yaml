@@ -46,21 +46,12 @@ paths:
         - in: body
           name: Login
           schema:
-            type: object
-            properties:
-              username:
-                type: string
-                description: Authentication username
-                example: RickL
-              password:
-                type: string
-                description: Authentication password
-                example: WeLoveCOP4331
+            $ref: '#/definitions/LoginDefinition'
       responses:
         200:
           description: Authentication successful
           schema:
-            $ref: '#/definitions/UserLoggedInInfo'
+            $ref: '#/definitions/UserFullRow'
         404:
           description: Authentication failure, either wrong username or password
           schema:
@@ -78,29 +69,12 @@ paths:
         - in: body
           name: Register
           schema:
-            type: object
-            properties:
-              username:
-                type: string
-                description: Username for the new user
-                example: RickL
-              password:
-                type: string
-                description: Password for the new user
-                example: WeLoveCOP4331
-              firstName:
-                type: string
-                description: First name for the new user
-                example: John
-              lastName:
-                type: string
-                description: Last name for the new user
-                example: Doe
+            $ref: '#/definitions/RegisterDefinition'
       responses:
         200:
           description: Registration successful
           schema:
-            $ref: '#/definitions/UserLoggedInInfo'
+            $ref: '#/definitions/UserFullRow'
         409:
           description: Username already exists
           schema:
@@ -117,12 +91,12 @@ paths:
       - in: body
         name: AddContact
         schema:
-          $ref: '#/definitions/ContactAddInfo'
+          $ref: '#/definitions/AddOrSearchContactDefinition'
       responses:
         200:
           description: Success
           schema:
-            $ref: '#/definitions/ContactAddInfo'
+            $ref: '#/definitions/ContactFullRow'
         400:
             $ref: '#/responses/BadRequest'
         500:
@@ -135,7 +109,7 @@ paths:
       - in: body
         name: SearchContact
         schema:
-          $ref : '#/definitions/ContactAddInfo'
+          $ref : '#/definitions/AddOrSearchContactDefinition'
       responses:
         200:
           description: Success, at least one match found
@@ -146,7 +120,7 @@ paths:
                 type: array
                 description: List of objects, each one is a contact information
                 items:
-                  $ref: '#/definitions/ContactSearchInfo'
+                  $ref: '#/definitions/ContactFullRow'
         404:
           description: No matches found or contact list is empty
           schema:
@@ -155,9 +129,78 @@ paths:
           $ref: '#/responses/BadRequest'
         500:
           $ref: '#/responses/ServerError'
-      
+          
+  /UpdateContact.php:
+    post:
+      summary: Set all properties of an existing contact
+      parameters:
+      - in: body
+        name: UpdateContact
+        schema:
+          $ref: '#/definitions/ContactFullRow'
+      responses:
+        200:
+          description: Success, row changed
+          schema:
+            $ref: '#/definitions/ContactFullRow'
+        400:
+          $ref: '#/responses/BadRequest'
+        500:
+          $ref: '#/responses/ServerError'    
+        
+  /DeleteContact.php:
+    post:
+      summary: Delete the specified contact
+      parameters:
+      - in: body
+        name: DeleteContact
+        schema:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: The ID of the entry in the contact list
+              example: 456
+      responses:
+        200:
+          description: Success, row deleted
+        400:
+          $ref: '#/responses/BadRequest'
+        500:
+          $ref: '#/responses/ServerError'    
+        
 definitions:
-  UserLoggedInInfo:
+  LoginDefinition:
+    type: object
+    properties:
+      username:
+        type: string
+        description: Authentication username
+        example: RickL
+      password:
+        type: string
+        description: Authentication password
+        example: WeLoveCOP4331
+  RegisterDefinition:
+    type: object
+    properties:
+      username:
+        type: string
+        description: Authentication username
+        example: RickL
+      password:
+        type: string
+        description: Authentication password
+        example: WeLoveCOP4331
+      firstName:
+        type: string
+        description: First name property of the application user
+        example: John
+      lastName:
+        type: string
+        description: Last name property of the application user
+        example: Doe     
+  UserFullRow:
     type: object
     properties:
       id:
@@ -176,7 +219,7 @@ definitions:
         type: string
         description: Last name property of the application user
         example: Doe
-  ContactAddInfo:
+  AddOrSearchContactDefinition:
     type: object
     properties:
       firstName:
@@ -187,6 +230,10 @@ definitions:
         type: string
         description: Last name property of contact
         example: Doe
+      favorite:
+        type: integer
+        description: Favorite flag property of contact
+        example: 1
       phone:
         type: string
         description: Phone number property of contact
@@ -199,7 +246,7 @@ definitions:
         type: integer
         description: The ID of the application user
         example: 123
-  ContactSearchInfo:
+  ContactFullRow:
     type: object
     properties:
       firstName:
