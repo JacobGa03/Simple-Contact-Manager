@@ -1,305 +1,163 @@
-//TODO: Add more functions to call the API (Modify)
-const urlBase = window.location.origin + '/LAMPAPI';
-//const urlBase = 'http://contact-manager.rodlop.net/LAMPAPI';
-const extension = 'php';
 
-let userId = 0;
-let firstName = '';
-let lastName = '';
-//Log the user into their account when their credentials are entered
-function doLogin()
-{
-	//When we pass the JSON to the API, they will return the UserID to the front end
-	userId = 0;
-	firstName = "";
-	lastName = "";
-	
-	//Grab the login and password from the corresponding fields
-	let login = document.getElementById("username").value;
-	let password = document.getElementById("password").value;
-	//It's always a good idea to NEVER store plaintext passwords
-//	var hash = md5( password );
-	
-	document.getElementById("loginResult").innerHTML = "";
+async function doLogin() {
+  let requestData = {
+    username: document.getElementById("username").value,
+    password: document.getElementById("password").value
+  };
 
-	//Package the information into a JSON notation
-	//For the Login.php we need to pass 'login' and 'password' to query the database
-	let tmp = {username:login,password:password};
-//	var tmp = {login:login,password:hash};
-	let jsonPayload = JSON.stringify( tmp );
-	
-	let url = urlBase + '/Login.' + extension;
+  let [ code, result ] = await callApi("/Login.php", requestData);
+  switch(code)  {
+    case 200: // OK: Successful login
+      saveUser(result);
+      //TODO: Change this to whatever becomes the main dashboard page
+      window.location.replace('crud.html') 
+      break;
+    case 404: // NOT FOUND: Incorrect login
+      document.getElementById("loginResult").innerHTML = "Login/Password combination incorrect";
+      break;
+    default:
+      alert("An unknown error has occured. Check browser console for details.");
+      break;
+  }
+}
 
-	//Use the API endpoint (Login.php)
-	let xhr = new XMLHttpRequest();
-	xhr.open("POST", url, true);
-	xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
-	try
-	{
-		xhr.onreadystatechange = function() 
-		{
-			if (this.readyState == 4 && this.status == 200) 
-			{
-				//Parse the JSON response from the API
-				let jsonObject = JSON.parse( xhr.responseText );
-				//NOTE: userId is a GLOBAL variable, therefore it can be reached from ANY function
-				userId = jsonObject.id;
-		
-	
-				firstName = jsonObject.firstName;
-				lastName = jsonObject.lastName;
+async function doRegister() {
+  let password = document.getElementById("password").value;
+  let confirmPassword = document.getElementById("confirmPassword").value;
 
-				saveCookie();
-	
-				//TODO: Change this to whatever becomes the main dashboard page
-				window.location.href = "crud.html";
-      } else if(this.readyState == 4 && this.status != 200) {
-    	  //Parse the JSON response from the API
-				let jsonObject = JSON.parse( xhr.responseText );
-        // API returns status 404 NOT FOUND if not such user exists
-        if(this.status == 404) {
-		      document.getElementById("loginResult").innerHTML = "Login/Password combination incorrect.";
-        } else {
-          // Some other backend error occured, check the browser console for further details
-          console.log('Error from backend: ' + jsonObject.error);
-        }
-      }
+  if(password != confirmPassword)
+  {
+    document.getElementById("registerResult").innerHTML = "Make sure your passwords match";
+    return;
+  }
+
+  let requestData = {
+    username: document.getElementById("username").value,
+    password: password,
+    firstName: document.getElementById("firstName").value,
+    lastName: document.getElementById("lastName").value
+  };
+
+  let [ code, result ] = await callApi("/Register.php", requestData);
+  switch(code) {
+    case 200: // OK: Successful registration
+      saveUser(result);
+      //TODO: Change this to whatever becomes the main dashboard page
+      window.location.replace('crud.html') 
+      break;
+    case 409: // CONFLICT: Requested username already exists
+      document.getElementById("registerResult").innerHTML = "Username already taken. Please choose another one.";
+      break;
+    default:
+      alert("An unknown error has occured. Check browser console for details.");
+      break;
+  }
+}
+
+async function addContact() {
+  let appUser = getUser();
+  if(appUser == null) {
+    // User is not logged in, how did we get here?
+    console.log("addContact: User not logged in???");
+    return;
+  }
+
+  //TODO: There will need to be MULTIPLE inputs here from one of the pages
+  let requestData = {
+    firstName: document.getElementById("firstName").value,
+    lastName: document.getElementById("lastName").value,
+    favorite: document.getElementById("favorite").value,
+    phone: document.getElementById("phone").value,
+    email: document.getElementById("email").value,
+    userId: appUser.id
+  }
+
+  let [ code, result ] = await callApi("/AddContact.php", requestData);
+  if(code == 200) {
+    document.getElementById("colorAddResult").innerHTML = "Contact Added!";
+  } else {
+    console.log("addContact: Something went wrong.");
+  }
+}
+
+/*
+ * Sends a request to the specified endpoint. Automatically handles
+ * the construction of the JSON request and decoding of the reply.
+ *
+ * Usage example:
+ *
+ *   let requestData = {
+ *     foo: "someValue",
+ *     bar: 100
+ *   };
+ *   let [ code, result ] = callApi("/Something.php", requestData);
+ *
+ * `code` will be the HTTP status code integer, 200 indicates success.
+ * `result` will be a javascript object containing all values returned
+ *   by the API.
+ */
+async function callApi(endpointPath, requestData) {
+  // Construct and send request to backend.
+  let url = window.location.origin + "/LAMPAPI" + endpointPath;
+  let options = {
+    body: JSON.stringify(requestData),
+    method: "POST"
+  };
+  let responseObject = await fetch(url, options);
+
+  // Decode the JSON reply.
+  let responseBody = await responseObject.text();
+  let result = JSON.parse(responseBody);
+  
+  // Our API always replies with 200 OK for successful requests, other status codes
+  // indicate errors and API includes an error string in the result object.
+  // For now, just log them to the browser's console.
+  if(responseObject.status != 200) {
+    console.log("Error from backend (status=%d): %s", responseObject.status, result.error);
+  }
+
+  // Return to the caller two values - the status code and decoded result object.
+  // It's easy to access by destructuring assignment, see:
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment
+  return [ responseObject.status, result ];
+}
+
+/*
+ * The following two functions save and retrieve the user information
+ * via a browser cookie by encoding a javascript object as JSON and
+ * saving the resulting string under the cookie named "user".
+ * If no such cookie exist, getUser() returns null.
+ *
+ * These cookie handler functions are very crude, we can take a look at
+ * a proper JS library like js-cookie if we need to do more complex tasks.
+ */
+
+function saveUser(userData) {
+  // Expire time (20 minutes)
+  let d = new Date();
+  d.setTime(d.getTime() + 20 * 60 * 1000);
+  // Encode object as JSON and escape special characters
+  let value = JSON.stringify(userData);
+  value = encodeURIComponent(value);
+  // Save it
+  document.cookie = "user=" + value + ";"
+    + "expires=" + d.toUTCString() + ";"
+    + "path=/";
+}
+
+function getUser() {
+  let obj = null;
+  // Find the cookie named "user"
+  for(let c of document.cookie.split(";")) {
+    c = c.trimStart();
+    if(c.startsWith('user=')) {
+      // Found it! Read the string to the right
+      // of the "=" and decode it as JSON.
+      let value = c.substring(5);
+      value = decodeURIComponent(value);
+      obj = JSON.parse(value);
+      break;
     }
-		xhr.send(jsonPayload);
-	}
-	catch(err)
-	{
-		document.getElementById("registerResult").innerHTML = err.message;
-	}
-
-}
-//Create a new User only if the username isn't already taken
-function doRegister(){
-	//Grab the login and password from the corresponding fields
-	firstName = document.getElementById("firstName").value;
-	lastName = document.getElementById("lastName").value;
-	let username = document.getElementById("username").value;
-	let password = document.getElementById("password").value;
-	let confirmPassword = document.getElementById("confirmPassword").value;
-	//It's always a good idea to NEVER store plaintext passwords
-	if(password != confirmPassword)
-	{
-		document.getElementById("registerResult").innerHTML = "Make sure your passwords match";
-		return;
-	}
-	//	var hash = md5( password );
-	
-	document.getElementById("registerResult").innerHTML = "";
-
-	//Package the information into a JSON notation
-	//To register UN,PW, and both first and last names must be passed
-	let tmp = {username:username,password:password,firstName:firstName,lastName:lastName};
-//	var tmp = {login:login,password:hash};
-	let jsonPayload = JSON.stringify( tmp );
-	
-	let url = urlBase + '/Register.' + extension;
-
-	//Use the API endpoint (Login.php)
-	let xhr = new XMLHttpRequest();
-	xhr.open("POST", url, true);
-	xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
-	try
-	{
-		xhr.onreadystatechange = function() 
-		{
-			if (this.readyState == 4 && this.status == 200) 
-			{
-				//Parse the JSON response from the API
-				let jsonObject = JSON.parse( xhr.responseText );
-				//NOTE: userId is a GLOBAL variable, therefore it can be reached from ANY function
-				userId = jsonObject.id;
-				//Save the first and last name so we can display it
-				firstName = jsonObject.firstName;
-				lastName = jsonObject.lastName;
-
-				saveCookie();
-	
-				//TODO: Change this to whatever becomes the main dashboard page
-				window.location.href = "crud.html";
-			} else if(this.readyState == 4 && this.status != 200) {
-				//Parse the JSON response from the API
-				let jsonObject = JSON.parse( xhr.responseText );
-        // API returns status 409 CONFLICT if username already exists
-        if(this.status == 409) {
-		      document.getElementById("registerResult").innerHTML = "Username already taken. Please choose another one.";
-        } else {
-          // Some other backend error occured, check the browser console for further details
-          console.log('Error from backend: ' + jsonObject.error);
-        }
-      }
-		};
-		xhr.send(jsonPayload);
-	}
-	//There was an error registering a user
-	catch(err)
-	{
-		document.getElementById("registerResult").innerHTML = err.message;
-	}
-}
-
-function saveCookie()
-{
-	let minutes = 20;
-	let date = new Date();
-	date.setTime(date.getTime()+(minutes*60*1000));	
-	document.cookie = "firstName=" + firstName + ",lastName=" + lastName + ",userId=" + userId + ";expires=" + date.toGMTString();
-}
-
-function readCookie()
-{
-	userId = -1;
-	let data = document.cookie;
-	let splits = data.split(",");
-	for(var i = 0; i < splits.length; i++) 
-	{
-		let thisOne = splits[i].trim();
-		let tokens = thisOne.split("=");
-		if( tokens[0] == "firstName" )
-		{
-			firstName = tokens[1];
-		}
-		else if( tokens[0] == "lastName" )
-		{
-			lastName = tokens[1];
-		}
-		else if( tokens[0] == "userId" )
-		{
-			userId = parseInt( tokens[1].trim() );
-		}
-	}
-	
-	if( userId < 0 )
-	{
-		window.location.href = "index.html";
-	}
-	else
-	{
-//		document.getElementById("userName").innerHTML = "Logged in as " + firstName + " " + lastName;
-	}
-}
-
-function doLogout()
-{
-	userId = 0;
-	firstName = "";
-	lastName = "";
-	document.cookie = "firstName= ; expires = Thu, 01 Jan 1970 00:00:00 GMT";
-	window.location.href = "index.html";
-}
-//Adds a new contact to a Users list of Contacts
-function addContact()
-{
-	//Get the new contact to add
-	//TODO: There will need to be MULTIPLE inputs here from one of the pages
-	let firstName = document.getElementById("colorText").value;
-	document.getElementById("colorAddResult").innerHTML = "";
-	let lastName = document.getElementById("colorText").value;
-	document.getElementById("colorAddResult").innerHTML = "";
-	let favorite = document.getElementById("colorText").value;
-	document.getElementById("colorAddResult").innerHTML = "";
-	let phone = document.getElementById("colorText").value;
-	document.getElementById("colorAddResult").innerHTML = "";
-	let email = document.getElementById("colorText").value;
-	document.getElementById("colorAddResult").innerHTML = "";
-
-	//Create a JSON payload with fields for a new contact filled in
-	let tmp = {firstName:firstName,lastName:lastName,favorite:favorite,phone:phone,email:email,userId:userId};
-	let jsonPayload = JSON.stringify( tmp );
-
-	let url = urlBase + '/AddContact.' + extension;
-	
-	let xhr = new XMLHttpRequest();
-	xhr.open("POST", url, true);
-	xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
-	try
-	{
-		xhr.onreadystatechange = function() 
-		{
-			//Display that the contact was added successfully
-			if (this.readyState == 4 && this.status == 200) 
-			{
-				document.getElementById("colorAddResult").innerHTML = "Contact Added!";
-			}
-		};
-		xhr.send(jsonPayload);
-	}
-	//There was some error when adding a new contact
-	catch(err)
-	{
-		document.getElementById("colorAddResult").innerHTML = err.message;
-	}
-	
-}
-//TODO: Search for a contact
-function searchContact()
-{
-	//Get the Contact to search for 
-	//TODO: There will need to be MULTIPLE inputs here from one of the pages
-	let firstName = document.getElementById("colorText").value;
-	document.getElementById("colorAddResult").innerHTML = "";
-	let lastName = document.getElementById("colorText").value;
-	document.getElementById("colorAddResult").innerHTML = "";
-	let favorite = document.getElementById("colorText").value;
-	document.getElementById("colorAddResult").innerHTML = "";
-	let phone = document.getElementById("colorText").value;
-	document.getElementById("colorAddResult").innerHTML = "";
-	let email = document.getElementById("colorText").value;
-	document.getElementById("colorAddResult").innerHTML = "";
-	//TODO: Determine a way to take fields that aren't filled and turn them into values that aren't allowed for different fields in order to make the search not reliant on those fields
-	
-	//TODO: Change this to an array Leinecker video will help with this 
-	let contactList = "";
-
-	//Create a JSON payload with fields for a contact to search for
-	let tmp = {firstName:firstName,lastName:lastName,favorite:favorite,phone:phone,email:email,userId:userId};
-	let jsonPayload = JSON.stringify( tmp );
-
-	let url = urlBase + '/SearchContact.' + extension;
-	
-	let xhr = new XMLHttpRequest();
-	xhr.open("POST", url, true);
-	xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
-	try
-	{
-		xhr.onreadystatechange = function() 
-		{
-			//Display that the contact was added successfully
-			if (this.readyState == 4 && this.status == 200) 
-			{
-				document.getElementById("colorSearchResult").innerHTML = "Contact(s) has been retrieved";
-				let jsonObject = JSON.parse( xhr.responseText );
-				
-				//TODO: Figure out what to do for the array of JSON that is returned 
-				for( let i=0; i<jsonObject.results.length; i++ )
-				{
-					colorList += jsonObject.results[i];
-					if( i < jsonObject.results.length - 1 )
-					{
-						colorList += "<br />\r\n";
-					}
-				}
-				
-				document.getElementsByTagName("p")[0].innerHTML = colorList;
-			}
-		};
-		xhr.send(jsonPayload);
-	}
-	//There was some error when adding a new contact
-	catch(err)
-	{
-		document.getElementById("colorSearchResult").innerHTML = err.message;
-	}
-}
-
-function deleteContact(){
-
-}
-
-function updateContact(){
-
+  }
+  return obj;
 }
