@@ -228,3 +228,46 @@ body {
 .add-contact-container input[type="submit"]:hover {
     background-color: #0056b3;
 }
+
+/*TODO: Add styling to the delete overlay*/
+.delete-contact-container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 300px;
+}
+
+.delete-contact-container h2 {
+    margin: 0 0 20px;
+    text-align: center;
+}
+/*Fix so the buttons sit left to right*/
+.delete-contact-container label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.delete-contact-container input[type="button"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.add-contact-container input[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.delete-contact-container input[type="submit"]:hover {
+    background-color: #0056b3;
+}

@@ -30,7 +30,7 @@
                         <td>(555) 555-5555</td>
                         <td>
                             <button class="buttonY" id="eshow-overlay-btn">Edit</button>
-                            <a href="#" class="buttonR">Delete</a>
+                            <a href="#" class="buttonR" id="dshow-overlay-btn">Delete</a>
                         </td>
                     </tr>
                     <tr>
@@ -39,7 +39,7 @@
                         <td>(555) 123-4567</td>
                         <td>
                             <button class="buttonY" id="eshow-overlay-btn">Edit</button>
-                            <a href="#" class="buttonR">Delete</a>
+                            <a href="#" class="buttonR" id="dshow-overlay-btn">Delete</a>
                         </td>
                     </tr>
                 </tbody>
@@ -47,7 +47,7 @@
         </div>
     </div>
 
-        <!--edit overlay-->
+    <!--edit overlay-->
     <div class="overlay" id="eoverlay">
         <div class="edit-contact-container">
             <h2>Edit Contact</h2>
@@ -60,7 +60,7 @@
 
                 <label for="phone">Phone:</label>
                 <input type="tel" id="phone" name="phone" required>
-
+                <!--We don't have an address field in the database-->
                 <label for="address">Address:</label>
                 <input type="text" id="address" name="address">
 
@@ -72,7 +72,7 @@
         </div>
     </div>
 
-        <!--add contact overlay-->
+    <!--add contact overlay-->
     <div class="overlay" id="aoverlay">
         <div class="add-contact-container">
             <h2>Add Contact</h2>
@@ -95,6 +95,19 @@
                 <a href="#" id="acancel-btn">Cancel</a>
             </div>
         </div>
+    </div>
+
+    <!--delete contact overlay-->
+    <div class="overlay" id="doverlay">
+       <div class="delete-contact-container">
+            <h2>Are Your Sure You Want to Delete?</h2>
+            <!--Delete-->
+            <label for="confirm-delete"></label>
+            <input type="button" id="confirm-delete" value="YES" required>
+            <!--Don't Delete-->
+            <label for="cancel-delete"></label>
+            <input type="button" id="dcancel-btn" value="NO" required>
+       </div> 
     </div>
 
     <!--edit overlay script-->
@@ -127,6 +140,26 @@
             e.preventDefault();
             aoverlay.classList.remove('active');
         });
+    </script>
+    <!--delete overlay script
+    data-id="n"-->
+    <script>
+        const doverlay = document.getElementById('doverlay');
+        const dshowOverlayBtn = document.getElementById('dshow-overlay-btn');
+        const dcancelBtn = document.getElementById('dcancel-btn');
+        
+        //Listen for the button being clicked
+        dshowOverlayBtn.addEventListener('click', () => {
+            //Show the overlay
+            doverlay.classList.add('active');
+            console.log("called delete");
+        });
+        //Listen for the cancel to remove the overlay
+        dcancelBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            //Remove the overlay and go back to the dashboard
+            doverlay.classList.remove('active');
+        })
     </script>
 </body>
 </html>
