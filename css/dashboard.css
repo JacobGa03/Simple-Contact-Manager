@@ -39,8 +39,42 @@ body {
     cursor: pointer;
 }
 
+.buttonY {
+    display: inline-block;
+    padding: 8px 16px;
+    margin: 0 10px 10px 0;
+    text-decoration: none;
+    background-color: #bbbb00;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.buttonR {
+    display: inline-block;
+    padding: 8px 16px;
+    margin: 0 10px 10px 0;
+    text-decoration: none;
+    background-color: #ff0000;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
 .button:hover {
     background-color: #0056b3;
+}
+
+.buttonY:hover {
+    background-color: #aaaa00;
+}
+
+.buttonR:hover {
+    background-color: #dd0000;
 }
 
 .contacts-table {
@@ -69,5 +103,128 @@ body {
 }
 
 .button-small:hover {
+    background-color: #0056b3;
+}
+
+
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.overlay.active {
+    display: flex;
+}
+
+.edit-contact-container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 300px;
+}
+
+.edit-contact-container h2 {
+    margin: 0 0 20px;
+    text-align: center;
+}
+
+.edit-contact-container label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.edit-contact-container input[type="text"],
+.edit-contact-container input[type="email"],
+.edit-contact-container input[type="tel"],
+.edit-contact-container input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.edit-contact-container input[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.edit-contact-container input[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+.bottom-text {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.bottom-text a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.bottom-text a:hover {
+    text-decoration: underline;
+}
+
+
+.add-contact-container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 300px;
+}
+
+.add-contact-container h2 {
+    margin: 0 0 20px;
+    text-align: center;
+}
+
+.add-contact-container label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.add-contact-container input[type="text"],
+.add-contact-container input[type="email"],
+.add-contact-container input[type="tel"],
+.add-contact-container input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.add-contact-container input[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.add-contact-container input[type="submit"]:hover {
     background-color: #0056b3;
 }
