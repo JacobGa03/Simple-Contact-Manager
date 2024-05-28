@@ -3,32 +3,15 @@
 	require 'common.php';
 	//Set the required fields to be filled in by the JSON
 	$required = [
-	'firstName',
-	'lastName',
-	'favorite',
-	'phone',
-	'email',
-	'userId',
 	'id'
 	];
 	//Get the input JSON and connect to the database
 	$inData = getRequestParams($required);
 	$conn = getDbConnection();
-	//Set given parameters to %%, so they can be partially matched
-	$inData['firstName'] = '%'.$inData['firstName'].'%';
-	$inData['lastName'] = '%'.$inData['lastName'].'%';
-	$inData['phone'] = '%'.$inData['phone'].'%';
-	$inData['email'] = '%'.$inData['email'].'%';
-	
 	try{
-		//DELETE the Contact from the database
-		// $stmt = $conn->prepare("DELETE FROM Contacts WHERE FirstName like ? AND LastName like ? AND Favorite = ? AND Phone like ? AND Email like ? AND UserID = ?");
-		// $stmt->bind_param("ssissi", $inData['firstName'],$inData['lastName'],$inData['favorite'],$inData['phone'],$inData['email'],$inData['userId']);
-		//DELETE a specific row identified by ID (which is auto-incremented by MySQL)
-		$stmt = $conn->prepare("DELETE FROM Contacts WHERE ID = ?");
+		$stmt = $conn->prepare("DELETE FROM Contacts WHERE id = ?");
 		$stmt->bind_param("i", $inData['id']);
 		$stmt->execute();
-		$rslt = $stmt->get_result();
 
 		//Return the $inData back to the user to show a successful deletion 
 		returnJson($inData);
