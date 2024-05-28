@@ -132,16 +132,12 @@ async function addContact() {
     lastName.reportValidity();
     return;
   }
-  //Check some regex here as well /* TODO */
-  if(false)
+  if(email.value == '' || /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email.value))
   {
     email.reportValidity();
     return;
   }
-  /* TODO (HAD PROBLEMS)
-  if(phone.value == '' || phone.value.match("^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$"))
-  */
-  if(false)
+  if(phone.value == '' || /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$/.test(phone.value))
   {
     phone.setCustomValidity("Phone Number Only Contain Numbers and/or Dashes");
     phone.reportValidity();
@@ -259,8 +255,10 @@ async function populateContactsTable() {
     };
 
     // iterate over the received array of objects
+    // TODO: Insert the <tr> tags here, we also need a way to manage id's 
     for(contact of result["Results"]) {
       // create entries on the HTML table for each contact
+      //TODO: Can we someway add some properties so we can make delete easier?
       let newRow = table.insertRow();
       let nameCell = newRow.insertCell();
       let emailCell = newRow.insertCell();
