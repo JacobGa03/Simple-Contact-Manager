@@ -166,10 +166,13 @@ async function addContact() {
   } else {
     console.log("addContact: Something went wrong.");
   }
+
+  //TODO: Add new <tr> tag for each person added 
 }
 
 /*
  * Delete a contact by contact id
+ * Loop through and remove the row corresponding to the contact we deleted
  */
 async function deleteContact(id) {
   let requestData = {
@@ -177,7 +180,7 @@ async function deleteContact(id) {
   }
   let [ code, result ] = await callApi("/DeleteContact.php", requestData);
   if(code == 200) {
-    /* TODO */
+    /* TODO: Delete <tr> corresponding to the contact that we deleted. We should really AVOID reloading*/
     alert("deleted okay. please refresh manually"); // TODO
   } else {
     /* oopsies */
