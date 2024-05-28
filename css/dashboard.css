@@ -26,6 +26,15 @@ body {
     margin-bottom: 20px;
 }
 
+.search-bar {
+    padding: 10px;
+    width: 60%;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
 .button {
     display: inline-block;
     padding: 10px 20px;
@@ -106,7 +115,6 @@ body {
     background-color: #0056b3;
 }
 
-
 .overlay {
     display: none;
     position: fixed;
@@ -182,7 +190,6 @@ body {
 .bottom-text a:hover {
     text-decoration: underline;
 }
-
 
 .add-contact-container {
     background-color: #fff;
