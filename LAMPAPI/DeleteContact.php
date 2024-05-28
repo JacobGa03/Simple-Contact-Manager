@@ -3,12 +3,6 @@
 	require 'common.php';
 	//Set the required fields to be filled in by the JSON
 	$required = [
-	'firstName',
-	'lastName',
-	'favorite',
-	'phone',
-	'email',
-	'userId',
 	'id'
 	];
 	//Get the input JSON and connect to the database

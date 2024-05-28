@@ -5,13 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Contact Manager</title>
     <link rel="stylesheet" href="css/dashboard.css">
+    <script src="js/code.js"></script>
 </head>
-<body>
+<body onload="populateContactsTable()">
     <div class="dashboard-container">
         <h2>Welcome, <span id="username">Username</span></h2>
         <div class="buttons">
             <a href="#" class="button">Search</a>
-            <button class="button" id="ashow-overlay-btn">Add Contact</button>
+            <button class="button" id="ashow-overlay-btn"
+              onclick="document.getElementById('aoverlay').classList.add('active')">Add Contact</button>
         </div>
         <!--Display Contacts for a given user-->
         <div class="contacts-table">
@@ -24,7 +26,8 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="contacts-table-tbody">
+                    <!-- We no longer need these placeholders
                     <tr>
                         <td>John Doe</td>
                         <td>john.doe@example.com</td>
@@ -34,7 +37,6 @@
                             <a href="#" class="buttonR dshow-overlay-btn">Delete</a>
                         </td>
                     </tr>
-                    <!--Get the buttons to work here!-->
                     <tr>
                         <td>Jane Smith</td>
                         <td>jane.smith@example.com</td>
@@ -44,6 +46,7 @@
                             <a href="#" class="buttonR dshow-overlay-btn">Delete</a>
                         </td>
                     </tr>
+                    -->
                 </tbody>
             </table>
         </div>
@@ -53,20 +56,19 @@
         <div class="edit contact-container">
             <h2>Edit Contact</h2>
             <form class="edit-contact-form">
-                <label for="name">First Name:</label>
-                <input type="text" id="firstName" name="name" required>
+                <label for="firstName">First name:</label>
+                <input type="text" id="edit-firstName" name="edit-firstName" required>
 
-                <label for="name">Last Name:</label>
-                <input type="text" id="lastName" name="name" required>
+                <label for="lastName">Last name:</label>
+                <input type="text" id="edit-lastName" name="edit-lastName" required>
 
                 <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
+                <input type="email" id="edit-email" name="edit-email" required>
 
                 <label for="phone">Phone:</label>
-                <input type="tel" id="phone" name="phone" required>
+                <input type="tel" id="edit-phone" name="edit-phone" required>
 
-                <!--Once the form is filled in call the deleteContact function-->
-                <button type="button" onclick="updateContact();">Save</button>
+                <button type="button" id="confirm-edit">Save</button>
             </form>
             <div class="bottom-text">
                 <a href="#" id="ecancel-btn">Cancel</a>
@@ -78,17 +80,17 @@
         <div class="add contact-container">
             <h2>Add Contact</h2>
             <form class="add-contact-form">
-                <label for="name">First Name:</label>
-                <input type="text" id="firstName" name="name" required>
+                <label for="firstName">First name:</label>
+                <input type="text" id="add-firstName" name="add-firstName" required>
 
-                <label for="name">Last Name:</label>
-                <input type="text" id="lastName" name="name" required>
+                <label for="lastName">Last name:</label>
+                <input type="text" id="add-lastName" name="add-lastName" required>
 
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
+                 <label for="email">Email:</label>
+                <input type="email" id="add-email" name="add-email" required>
 
                 <label for="phone">Phone:</label>
-                <input type="tel" id="phone" name="phone" required>
+                <input type="tel" id="add-phone" name="add-phone" required>
 
                 <!--Once the form is filled in call the addContact function-->
                 <button type="button" onclick="addContact();">Add</button>
@@ -104,8 +106,7 @@
             <h2>Are Your Sure You Want to Delete?</h2>
             <!--Delete-->
             <form >
-                <!--Once the form is filled in call the deleteContact function-->
-                <button type="button" onclick="deleteContact();">Delete</button>
+                <button type="button" id="confirm-delete">Delete</button>
             </form>
             <div class="bottom-text">
                 <a href="#" id="dcancel-btn">Cancel</a>
@@ -113,6 +114,19 @@
        </div> 
     </div>
 
+    <!-- script to hide/cancel the overlays -->
+    <script>
+      let hidefn = (evt) => {
+        // .closest(".overlay") traverses parents until it finds one
+        // with the overlay class
+        evt.currentTarget.closest(".overlay").classList.remove("active");
+      }
+      document.getElementById("acancel-btn").addEventListener("click", hidefn);
+      document.getElementById("ecancel-btn").addEventListener("click", hidefn);
+      document.getElementById("dcancel-btn").addEventListener("click", hidefn);
+    </script>
+
+    <!-- don't know what this does. commenting it out for now. -PR
     <script>
         function addOverlayButton(button, ){
             
@@ -166,5 +180,6 @@
             doverlay.classList.remove('active');
         });
     </script>
+    -->
 </body>
 </html>
