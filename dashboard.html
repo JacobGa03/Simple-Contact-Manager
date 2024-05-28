@@ -13,6 +13,7 @@
             <a href="#" class="button">Search</a>
             <button class="button" id="ashow-overlay-btn">Add Contact</button>
         </div>
+        <!--Display Contacts for a given user-->
         <div class="contacts-table">
             <table>
                 <thead>
@@ -29,56 +30,59 @@
                         <td>john.doe@example.com</td>
                         <td>(555) 555-5555</td>
                         <td>
-                            <button class="buttonY" id="eshow-overlay-btn">Edit</button>
-                            <a href="#" class="buttonR" id="dshow-overlay-btn">Delete</a>
+                            <button class="buttonY eshow-overlay-btn">Edit</button>
+                            <a href="#" class="buttonR dshow-overlay-btn">Delete</a>
                         </td>
                     </tr>
+                    <!--Get the buttons to work here!-->
                     <tr>
                         <td>Jane Smith</td>
                         <td>jane.smith@example.com</td>
                         <td>(555) 123-4567</td>
                         <td>
-                            <button class="buttonY" id="eshow-overlay-btn">Edit</button>
-                            <a href="#" class="buttonR" id="dshow-overlay-btn">Delete</a>
+                            <button class="buttonY eshow-overlay-btn">Edit</button>
+                            <a href="#" class="buttonR dshow-overlay-btn">Delete</a>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
-
     <!--edit overlay-->
     <div class="overlay" id="eoverlay">
-        <div class="edit-contact-container">
+        <div class="edit contact-container">
             <h2>Edit Contact</h2>
             <form class="edit-contact-form">
-                <label for="name">Name:</label>
-                <input type="text" id="name" name="name" required>
+                <label for="name">First Name:</label>
+                <input type="text" id="firstName" name="name" required>
+
+                <label for="name">Last Name:</label>
+                <input type="text" id="lastName" name="name" required>
 
                 <label for="email">Email:</label>
                 <input type="email" id="email" name="email" required>
 
                 <label for="phone">Phone:</label>
                 <input type="tel" id="phone" name="phone" required>
-                <!--We don't have an address field in the database-->
-                <label for="address">Address:</label>
-                <input type="text" id="address" name="address">
 
-                <input type="submit" value="Save">
+                <!--Once the form is filled in call the deleteContact function-->
+                <button type="button" onclick="updateContact();">Save</button>
             </form>
             <div class="bottom-text">
                 <a href="#" id="ecancel-btn">Cancel</a>
             </div>
         </div>
     </div>
-
     <!--add contact overlay-->
     <div class="overlay" id="aoverlay">
-        <div class="add-contact-container">
+        <div class="add contact-container">
             <h2>Add Contact</h2>
             <form class="add-contact-form">
-                <label for="name">Name:</label>
-                <input type="text" id="name" name="name" required>
+                <label for="name">First Name:</label>
+                <input type="text" id="firstName" name="name" required>
+
+                <label for="name">Last Name:</label>
+                <input type="text" id="lastName" name="name" required>
 
                 <label for="email">Email:</label>
                 <input type="email" id="email" name="email" required>
@@ -86,80 +90,81 @@
                 <label for="phone">Phone:</label>
                 <input type="tel" id="phone" name="phone" required>
 
-                <label for="address">Address:</label>
-                <input type="text" id="address" name="address">
-
-                <input type="submit" value="Save">
+                <!--Once the form is filled in call the addContact function-->
+                <button type="button" onclick="addContact();">Add</button>
             </form>
             <div class="bottom-text">
                 <a href="#" id="acancel-btn">Cancel</a>
             </div>
         </div>
     </div>
-
     <!--delete contact overlay-->
     <div class="overlay" id="doverlay">
-       <div class="delete-contact-container">
+       <div class="delete contact-container">
             <h2>Are Your Sure You Want to Delete?</h2>
             <!--Delete-->
-            <label for="confirm-delete"></label>
-            <input type="button" id="confirm-delete" value="YES" required>
-            <!--Don't Delete-->
-            <label for="cancel-delete"></label>
-            <input type="button" id="dcancel-btn" value="NO" required>
+            <form >
+                <!--Once the form is filled in call the deleteContact function-->
+                <button type="button" onclick="deleteContact();">Delete</button>
+            </form>
+            <div class="bottom-text">
+                <a href="#" id="dcancel-btn">Cancel</a>
+            </div>
        </div> 
     </div>
 
-    <!--edit overlay script-->
     <script>
-        const eoverlay = document.getElementById('eoverlay');
-        const eshowOverlayBtn = document.getElementById('eshow-overlay-btn');
-        const ecancelBtn = document.getElementById('ecancel-btn');
-
-        eshowOverlayBtn.addEventListener('click', () => {
-            eoverlay.classList.add('active');
-        });
-
-        ecancelBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            eoverlay.classList.remove('active');
-        });
-    </script>
-
-    <!--add contact overlay script-->
-    <script>
+        function addOverlayButton(button, ){
+            
+        }
+        //Add contact overlay 
         const aoverlay = document.getElementById('aoverlay');
         const ashowOverlayBtn = document.getElementById('ashow-overlay-btn');
         const acancelBtn = document.getElementById('acancel-btn');
-
+        //Listen in order to SHOW the Add page
         ashowOverlayBtn.addEventListener('click', () => {
             aoverlay.classList.add('active');
         });
-
+        //Listen in order to REMOVE the Add page
         acancelBtn.addEventListener('click', (e) => {
             e.preventDefault();
             aoverlay.classList.remove('active');
         });
-    </script>
-    <!--delete overlay script
-    data-id="n"-->
-    <script>
-        const doverlay = document.getElementById('doverlay');
-        const dshowOverlayBtn = document.getElementById('dshow-overlay-btn');
-        const dcancelBtn = document.getElementById('dcancel-btn');
-        
-        //Listen for the button being clicked
-        dshowOverlayBtn.addEventListener('click', () => {
-            //Show the overlay
-            doverlay.classList.add('active');
-            console.log("called delete");
+
+        //Edit contact overlay
+        const eoverlay = document.getElementById('eoverlay');
+        const eshowOverlayBtns = document.getElementsByClassName('eshow-overlay-btn');
+        const ecancelBtn = document.getElementById('ecancel-btn');
+        //Listen in order to ADD the Edit page
+        //NOTE: the eshowOverlayBtns is an HTML collection, we need to convert
+        //to an array in order iterate over and apply the changes.
+        Array.from(eshowOverlayBtns).forEach(eshowOverlayBtn => {
+            eshowOverlayBtn.addEventListener('click', () => {
+                eoverlay.classList.add('active');
+            });
         });
-        //Listen for the cancel to remove the overlay
+        //Listen in order to REMOVE the Edit page
+        ecancelBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            eoverlay.classList.remove('active');
+        });
+        
+        //Delete contact overlay 
+        const doverlay = document.getElementById('doverlay');
+        const dshowOverlayBtns = document.getElementsByClassName('dshow-overlay-btn');
+        const dcancelBtn = document.getElementById('dcancel-btn');
+        //Listen in order to ADD the Delete page
+        Array.from(dshowOverlayBtns).forEach(dshowOverlayBtn => {
+            dshowOverlayBtn.addEventListener('click', () => {
+                doverlay.classList.add('active');
+            });
+        });
+        //Listen in order to REMOVE the Delete page
         dcancelBtn.addEventListener('click', (e) => {
             e.preventDefault();
             //Remove the overlay and go back to the dashboard
             doverlay.classList.remove('active');
-        })
+        });
     </script>
 </body>
 </html>

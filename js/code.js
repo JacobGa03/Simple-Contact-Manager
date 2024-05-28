@@ -38,7 +38,7 @@ async function doLogin() {
       break;
   }
 }
-//Create a new user
+//Grab all of the user information from the form and create a new User.
 async function doRegister() {
   let firstName = document.getElementById("firstName");
   let lastName = document.getElementById("lastName");
@@ -106,14 +106,45 @@ async function doRegister() {
       break;
   }
 }
-
+//Add Contact for a specified user
 async function addContact() {
+  //Grab the user information
   let appUser = getUser();
   if(appUser == null) {
     // User is not logged in, how did we get here?
     console.log("addContact: User not logged in???");
     return;
   }
+
+  let firstName = document.getElementById("firstName");
+  let lastName = document.getElementById("lastName");
+  let email = document.getElementById("email");
+  let phone = document.getElementById("phone");
+  //Do some verification
+  if(firstName.value == '')
+  {
+    firstName.reportValidity();
+    return;
+  }
+  if(lastName.value == '')
+  {
+    lastName.reportValidity();
+    return;
+  }
+  //Check some regex here as well
+  if(email.value == '' || email.matches())
+  {
+    return;
+  }
+  if(phone.value == '' || !phone.value.matches("^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$"))
+  {
+    phone.setCustomValidity("Phone Number Only Contain Numbers and/or Dashes");
+    phone.reportValidity();
+    return;
+  }
+
+  console.log("Got passed add verification");
+  return;
 
   //TODO: There will need to be MULTIPLE inputs here from one of the pages
   let requestData = {
