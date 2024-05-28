@@ -11,9 +11,9 @@
     <div class="dashboard-container">
         <h2>Welcome, <span id="username">Username</span></h2>
         <div class="buttons">
-            <a href="#" class="button">Search</a>
-            <button class="button" id="ashow-overlay-btn"
-              onclick="document.getElementById('aoverlay').classList.add('active')">Add Contact</button>
+            <input type="text" id="search-input" class="search-bar" placeholder="Search contacts...">
+            <button class="button" id="search-btn">Search</button>
+            <button class="button" id="ashow-overlay-btn">Add Contact</button>
         </div>
         <!--Display Contacts for a given user-->
         <div class="contacts-table">
