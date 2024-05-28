@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Page</title>
+    <link rel="stylesheet" href="css/register.css">
+    <script type="text/javascript" src="/js/code.js"></script>
+
+</head>
+<body>
+    <div class="login-container">
+        <h2>Register</h2>
+            <form>
+            <label for="firstName">First Name:</label>
+            <input type="text" id="firstName" name="firstName" required>
+
+            <label for="lastName">Last Name:</label>
+            <input type="text" id="lastName" name="lastName" required>
+
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+
+            <label for="confirmPassword">Confirm Password:</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" required>
+
+            <!--Once the form is filled in call the doRegister function-->
+            <button type="button" onclick=" doRegister();">Register</button>
+            <span id="registerResult"></span>
+
+            </form>
+        <div class="bottom-text">
+            Already have an account? <a href="login.html">Login</a>
+        </div>
+    </div>
+</body>
+</html>
