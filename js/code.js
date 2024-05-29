@@ -132,19 +132,20 @@ async function addContact() {
     lastName.reportValidity();
     return;
   }
-  if(email.value == '' || /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email.value))
+  if(email.value == '' || !(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email.value)))
   {
+    email.setCustomValidity("Only Emails of the Form 'example@email.com' are Allowed");
     email.reportValidity();
     return;
   }
-  if(phone.value == '' || /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$/.test(phone.value))
+  if(phone.value == '' || !(/^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$/.test(phone.value)))
   {
     phone.setCustomValidity("Phone Number Only Contain Numbers and/or Dashes");
     phone.reportValidity();
     return;
   }
 
-  //TODO: There will need to be MULTIPLE inputs here from one of the pages
+  //Package our request
   let requestData = {
     firstName: document.getElementById("add-firstName").value,
     lastName: document.getElementById("add-lastName").value,
@@ -158,12 +159,31 @@ async function addContact() {
   let [ code, result ] = await callApi("/AddContact.php", requestData);
   if(code == 200) {
     console.log("add success"); // TODO
-    alert("success please refresh manually");
   } else {
     console.log("addContact: Something went wrong.");
   }
 
-  //TODO: Add new <tr> tag for each person added 
+   let addResult = {
+   Results: [
+      {
+          firstName: firstName.value,
+          lastName: lastName.value,
+          phone: phone.value,
+          email: email.value,
+          userId: appUser.id,
+          id: result.id
+      }
+    ]
+  };
+  // Draw the new row
+  drawRow(addResult);
+  // Go back to the dashboard
+  document.getElementById("aoverlay").classList.remove("active");
+  // Clear the fields
+  document.getElementById("add-firstName").value = '';
+  document.getElementById("add-lastName").value = '';
+  document.getElementById("add-email").value = '';
+  document.getElementById("add-phone").value = '';
 }
 
 /*
@@ -183,6 +203,64 @@ async function deleteContact(id) {
   }
 }
 
+async function searchContact(){
+  //Grab the user information
+  let appUser = getUser();
+  if(appUser == null) {
+    // User is not logged in, how did we get here?
+    console.log("addContact: User not logged in???");
+    return;
+  }
+
+  // Grab the input from the search bar
+  let searchContent = document.getElementById('search-input');
+  if(searchContent.value == '')
+  {
+    searchContent.setCustomValidity("Add Content to Search");
+    searchContent.reportValidity();
+    return;
+  }
+
+  let nameContent = searchContent.value;
+  let phoneContent = "-----";
+  let emailContent = "-----";
+
+  // Is an email present?
+  if((/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(searchContent.value)))
+  {
+    emailContent = searchContent.value;
+    nameContent = "-----";
+    phoneContent = "-------"
+  }
+  // Is a phone present?
+  else if((/^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$/.test(searchContent.value)))
+  {
+    emailContent = "-----";
+    nameContent = "-----";
+    phoneContent = searchContent.value;
+  }
+
+  //Default for searching names
+  let requestData = {
+    firstName: nameContent,
+    lastName: nameContent,
+    favorite:-1,
+    phone:phoneContent,
+    email:emailContent,
+    userId: appUser.id 
+  }
+  let [ code, result ] = await callApi("/SearchContact.php", requestData);
+
+  if(code == 200) {
+    alert("we got results"); // TODO
+  } else {
+    searchContent.setCustomValidity("No Matches Found");
+    searchContent.reportValidity();
+  }
+  // Clear the input field after request is fulfilled
+  document.getElementById("search-input").value = '';
+}
+
 /* Populate the contacts table of the dashboard page with all
  * the contacts for the application user
  * TODO: this queries all the contacts, do we need "lazy" loading??
@@ -194,6 +272,8 @@ async function populateContactsTable() {
     console.log("populateContactsTable: User not logged in???");
     return;
   }
+  //Set the Username at the top so we know who is using
+  document.getElementById("username").textContent = appUser.username;
 
   // if these strings were not empty, the api would return contacts
   // that (partial) match; but because they're empty all contacts will
@@ -213,79 +293,9 @@ async function populateContactsTable() {
     /* TODO: clear the table, for example or do something else */
     console.log("populateContactsTable: zero contacts found");
     break;
-
   case 200: // OK
-    // retrieve the HTML table element
-    let table = document.getElementById("contacts-table-tbody");
-
-    // the functions that will be attached to ALL the Edit/Delete buttons
-    let editCallback = (evt) => {
-      // get the element that got triggered (ie, the button)
-      let editButton = evt.currentTarget;
-      // show the HTML overlay
-      let overlay = document.getElementById("eoverlay");
-      overlay.classList.add("active");
-
-      // fill the textboxes of the overlay with existing contact data
-      document.getElementById("edit-firstName").value = editButton.associatedContact.firstName;
-      document.getElementById("edit-lastName").value = editButton.associatedContact.lastName;
-      document.getElementById("edit-email").value = editButton.associatedContact.email;
-      document.getElementById("edit-phone").value = editButton.associatedContact.phone;
-
-      /* TODO figure out edit contact */
-     };
-
-    let deleteCallback = (evt) => {
-      // get the element that got triggered (ie, the button)
-      let deleteButton = evt.currentTarget;
-
-       // show the HTML overlay
-      let overlay = document.getElementById("doverlay");
-      overlay.classList.add("active");
-      // the confirm button of the overlay...
-      let confirmButton = document.getElementById("confirm-delete");
-      // ...attach it to the delete function and bind contact id
-      confirmButton.addEventListener("click", () => {
-        deleteContact(deleteButton.associatedContact.id);
-        overlay.classList.remove("active"); // hide overlay
-        // dirty way to repopulate the table - might not be optimal
-        table.innerHTML = "";
-        populateContactsTable();
-      });
-    };
-
-    // iterate over the received array of objects
-    // TODO: Insert the <tr> tags here, we also need a way to manage id's 
-    for(contact of result["Results"]) {
-      // create entries on the HTML table for each contact
-      //TODO: Can we someway add some properties so we can make delete easier?
-      let newRow = table.insertRow();
-      let nameCell = newRow.insertCell();
-      let emailCell = newRow.insertCell();
-      let phoneCell = newRow.insertCell();
-      nameCell.appendChild(document.createTextNode(contact.firstName + " " + contact.lastName));
-      emailCell.appendChild(document.createTextNode(contact.email));
-      phoneCell.appendChild(document.createTextNode(contact.phone));
-      // create the two buttons and add the necessary class plus text
-      let buttonsCell = newRow.insertCell();
-      let buttonEdit = document.createElement("button");
-      let buttonDelete = document.createElement("button");
-      buttonEdit.setAttribute("class", "buttonY");
-      buttonDelete.setAttribute("class", "buttonR");
-      buttonEdit.appendChild(document.createTextNode("Edit"));
-      buttonDelete.appendChild(document.createTextNode("Delete"));
-      // this is the trick - assign a custom parameter to the element itself!
-      // go ahead and just copy the whole contact to the button's internal object
-      buttonEdit.associatedContact = contact;
-      buttonDelete.associatedContact = contact;
-      // when clicked, the button will call the function and
-      // pass itself as an argument
-      buttonEdit.addEventListener("click", editCallback);
-      buttonDelete.addEventListener("click", deleteCallback);
-      // place them in the table
-      buttonsCell.appendChild(buttonEdit);
-      buttonsCell.appendChild(buttonDelete);
-    }
+    // Draw all of the contacts
+    drawRow(result);
     break;
   }
 }
@@ -370,4 +380,81 @@ function getUser() {
     }
   }
   return obj;
+}
+/* Draw a new <tr> for all of the contacts within result (array)
+*  The contact info and buttons are also drawn.
+*/
+function drawRow(result){
+  // retrieve the HTML table element
+  let table = document.getElementById("contacts-table-tbody");
+
+  // the functions that will be attached to ALL the Edit/Delete buttons
+  let editCallback = (evt) => {
+    // get the element that got triggered (ie, the button)
+    let editButton = evt.currentTarget;
+    // show the HTML overlay
+    let overlay = document.getElementById("eoverlay");
+    overlay.classList.add("active");
+
+    // fill the textboxes of the overlay with existing contact data
+    document.getElementById("edit-firstName").value = editButton.associatedContact.firstName;
+    document.getElementById("edit-lastName").value = editButton.associatedContact.lastName;
+    document.getElementById("edit-email").value = editButton.associatedContact.email;
+    document.getElementById("edit-phone").value = editButton.associatedContact.phone;
+
+    /* TODO figure out edit contact */
+    };
+
+  let deleteCallback = (evt) => {
+    // get the element that got triggered (ie, the button)
+    let deleteButton = evt.currentTarget;
+
+      // show the HTML overlay
+    let overlay = document.getElementById("doverlay");
+    overlay.classList.add("active");
+    // the confirm button of the overlay...
+    let confirmButton = document.getElementById("confirm-delete");
+    // ...attach it to the delete function and bind contact id
+    confirmButton.addEventListener("click", () => {
+      deleteContact(deleteButton.associatedContact.id);
+      overlay.classList.remove("active"); // hide overlay
+      // TODO: We need to simply remove the row NOT repopulate the table again
+      table.innerHTML = "";
+      populateContactsTable();
+    });
+  };
+
+  // iterate over the received array of objects
+  for(contact of result["Results"]) {
+    // create entries on the HTML table for each contact
+    //TODO: Can we someway add some properties so we can make delete easier?
+    let newRow = table.insertRow();
+    // Set the id of the new row to ('row' + contact.id)
+    newRow.setAttribute("id", "row"+contact.id);
+    let nameCell = newRow.insertCell();
+    let emailCell = newRow.insertCell();
+    let phoneCell = newRow.insertCell();
+    nameCell.appendChild(document.createTextNode(contact.firstName + " " + contact.lastName));
+    emailCell.appendChild(document.createTextNode(contact.email));
+    phoneCell.appendChild(document.createTextNode(contact.phone));
+    // create the two buttons and add the necessary class plus text
+    let buttonsCell = newRow.insertCell();
+    let buttonEdit = document.createElement("button");
+    let buttonDelete = document.createElement("button");
+    buttonEdit.setAttribute("class", "buttonY");
+    buttonDelete.setAttribute("class", "buttonR");
+    buttonEdit.appendChild(document.createTextNode("Edit"));
+    buttonDelete.appendChild(document.createTextNode("Delete"));
+    // this is the trick - assign a custom parameter to the element itself!
+    // go ahead and just copy the whole contact to the button's internal object
+    buttonEdit.associatedContact = contact;
+    buttonDelete.associatedContact = contact;
+    // when clicked, the button will call the function and
+    // pass itself as an argument
+    buttonEdit.addEventListener("click", editCallback);
+    buttonDelete.addEventListener("click", deleteCallback);
+    // place them in the table
+    buttonsCell.appendChild(buttonEdit);
+    buttonsCell.appendChild(buttonDelete);
+  }
 }

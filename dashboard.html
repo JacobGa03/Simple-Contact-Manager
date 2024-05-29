@@ -11,8 +11,8 @@
     <div class="dashboard-container">
         <h2>Welcome, <span id="username">Username</span></h2>
         <div class="buttons">
-            <input type="text" id="search-input" class="search-bar" placeholder="Search contacts...">
-            <button class="button" id="search-btn">Search</button>
+            <input type="text" id="search-input" class="search-bar" placeholder="Search Contacts...">
+            <button class="button" id="search-btn" onclick="searchContact();">Search</button>
             <button class="button" id="ashow-overlay-btn">Add Contact</button>
         </div>
         <!--Display Contacts for a given user-->
@@ -27,26 +27,7 @@
                     </tr>
                 </thead>
                 <tbody id="contacts-table-tbody">
-                    <!-- We no longer need these placeholders
-                    <tr>
-                        <td>John Doe</td>
-                        <td>john.doe@example.com</td>
-                        <td>(555) 555-5555</td>
-                        <td>
-                            <button class="buttonY eshow-overlay-btn">Edit</button>
-                            <a href="#" class="buttonR dshow-overlay-btn">Delete</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Jane Smith</td>
-                        <td>jane.smith@example.com</td>
-                        <td>(555) 123-4567</td>
-                        <td>
-                            <button class="buttonY eshow-overlay-btn">Edit</button>
-                            <a href="#" class="buttonR dshow-overlay-btn">Delete</a>
-                        </td>
-                    </tr>
-                    -->
+                    <!--Display a list of contacts-->
                 </tbody>
             </table>
         </div>
@@ -116,70 +97,20 @@
 
     <!-- script to hide/cancel the overlays -->
     <script>
-      let hidefn = (evt) => {
+        let hidefn = (evt) => {
         // .closest(".overlay") traverses parents until it finds one
         // with the overlay class
         evt.currentTarget.closest(".overlay").classList.remove("active");
-      }
-      document.getElementById("acancel-btn").addEventListener("click", hidefn);
-      document.getElementById("ecancel-btn").addEventListener("click", hidefn);
-      document.getElementById("dcancel-btn").addEventListener("click", hidefn);
-    </script>
-
-    <!-- don't know what this does. commenting it out for now. -PR
-    <script>
-        function addOverlayButton(button, ){
-            
         }
-        //Add contact overlay 
-        const aoverlay = document.getElementById('aoverlay');
-        const ashowOverlayBtn = document.getElementById('ashow-overlay-btn');
-        const acancelBtn = document.getElementById('acancel-btn');
-        //Listen in order to SHOW the Add page
-        ashowOverlayBtn.addEventListener('click', () => {
+        //Give the buttons the ability to hide
+        document.getElementById("acancel-btn").addEventListener("click", hidefn);
+        document.getElementById("ecancel-btn").addEventListener("click", hidefn);
+        document.getElementById("dcancel-btn").addEventListener("click", hidefn);
+
+        //Add contact overlay (Since it is singular we only need one)
+        document.getElementById('ashow-overlay-btn').addEventListener('click', () => {
             aoverlay.classList.add('active');
         });
-        //Listen in order to REMOVE the Add page
-        acancelBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            aoverlay.classList.remove('active');
-        });
-
-        //Edit contact overlay
-        const eoverlay = document.getElementById('eoverlay');
-        const eshowOverlayBtns = document.getElementsByClassName('eshow-overlay-btn');
-        const ecancelBtn = document.getElementById('ecancel-btn');
-        //Listen in order to ADD the Edit page
-        //NOTE: the eshowOverlayBtns is an HTML collection, we need to convert
-        //to an array in order iterate over and apply the changes.
-        Array.from(eshowOverlayBtns).forEach(eshowOverlayBtn => {
-            eshowOverlayBtn.addEventListener('click', () => {
-                eoverlay.classList.add('active');
-            });
-        });
-        //Listen in order to REMOVE the Edit page
-        ecancelBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            eoverlay.classList.remove('active');
-        });
-        
-        //Delete contact overlay 
-        const doverlay = document.getElementById('doverlay');
-        const dshowOverlayBtns = document.getElementsByClassName('dshow-overlay-btn');
-        const dcancelBtn = document.getElementById('dcancel-btn');
-        //Listen in order to ADD the Delete page
-        Array.from(dshowOverlayBtns).forEach(dshowOverlayBtn => {
-            dshowOverlayBtn.addEventListener('click', () => {
-                doverlay.classList.add('active');
-            });
-        });
-        //Listen in order to REMOVE the Delete page
-        dcancelBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            //Remove the overlay and go back to the dashboard
-            doverlay.classList.remove('active');
-        });
     </script>
-    -->
 </body>
 </html>
