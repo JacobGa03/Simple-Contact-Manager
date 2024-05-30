@@ -191,7 +191,7 @@ body {
     text-decoration: underline;
 }
 
-.add-contact-container {
+.contact-container {
     background-color: #fff;
     padding: 20px;
     border-radius: 8px;
@@ -231,9 +231,21 @@ body {
     font-size: 16px;
     cursor: pointer;
 }
+<<<<<<< Updated upstream
 
 .add-contact-container input[type="submit"]:hover {
     background-color: #0056b3;
+=======
+.contact-container button[type="button"]{
+    width: 100%;
+    padding: 10px;
+    background-color: #0037FF;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+>>>>>>> Stashed changes
 }
 
 /*TODO: Add styling to the delete overlay*/
