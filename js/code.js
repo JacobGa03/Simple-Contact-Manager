@@ -197,7 +197,6 @@ async function deleteContact(id) {
   let [ code, result ] = await callApi("/DeleteContact.php", requestData);
   if(code == 200) {
     /* TODO: Delete <tr> corresponding to the contact that we deleted. We should really AVOID reloading*/
-    alert("deleted okay. please refresh manually"); // TODO
   } else {
     /* oopsies */
   }
@@ -372,9 +371,9 @@ function drawRow(result){
     confirmButton.addEventListener("click", () => {
       deleteContact(deleteButton.associatedContact.id);
       overlay.classList.remove("active"); // hide overlay
-      // TODO: We need to simply remove the row NOT repopulate the table again
-      table.innerHTML = "";
-      populateContactsTable();
+      // TODO: Simply not working at this point
+      document.getElementById("contacts-table-tbody").innerHTML = "";
+      populateContactsTable("","","","");
     });
   };
 

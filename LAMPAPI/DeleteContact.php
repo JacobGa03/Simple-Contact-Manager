@@ -8,11 +8,6 @@
 	//Get the input JSON and connect to the database
 	$inData = getRequestParams($required);
 	$conn = getDbConnection();
-	//Set given parameters to %%, so they can be partially matched
-	$inData['firstName'] = '%'.$inData['firstName'].'%';
-	$inData['lastName'] = '%'.$inData['lastName'].'%';
-	$inData['phone'] = '%'.$inData['phone'].'%';
-	$inData['email'] = '%'.$inData['email'].'%';
 	
 	try{
 		//DELETE the Contact from the database
