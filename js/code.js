@@ -204,59 +204,13 @@ async function deleteContact(id) {
 }
 
 async function searchContact(){
-  //Grab the user information
-  let appUser = getUser();
-  if(appUser == null) {
-    // User is not logged in, how did we get here?
-    console.log("addContact: User not logged in???");
-    return;
-  }
-
   // Grab the input from the search bar
-  let searchContent = document.getElementById('search-input');
-  if(searchContent.value == '')
-  {
-    searchContent.setCustomValidity("Add Content to Search");
-    searchContent.reportValidity();
-    return;
-  }
+  let searchContent = document.getElementById('search-input').value;
+  //Clear the table to only show matches
+  document.getElementById("contacts-table-tbody").innerHTML = "";
+  //Populate already calls the search API and should fill the table accordingly
+  populateContactsTable(searchContent,searchContent,searchContent,searchContent);
 
-  let nameContent = searchContent.value;
-  let phoneContent = "-----";
-  let emailContent = "-----";
-
-  // Is an email present?
-  if((/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(searchContent.value)))
-  {
-    emailContent = searchContent.value;
-    nameContent = "-----";
-    phoneContent = "-------"
-  }
-  // Is a phone present?
-  else if((/^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$/.test(searchContent.value)))
-  {
-    emailContent = "-----";
-    nameContent = "-----";
-    phoneContent = searchContent.value;
-  }
-
-  //Default for searching names
-  let requestData = {
-    firstName: nameContent,
-    lastName: nameContent,
-    favorite:-1,
-    phone:phoneContent,
-    email:emailContent,
-    userId: appUser.id 
-  }
-  let [ code, result ] = await callApi("/SearchContact.php", requestData);
-
-  if(code == 200) {
-    alert("we got results"); // TODO
-  } else {
-    searchContent.setCustomValidity("No Matches Found");
-    searchContent.reportValidity();
-  }
   // Clear the input field after request is fulfilled
   document.getElementById("search-input").value = '';
 }
@@ -265,7 +219,7 @@ async function searchContact(){
  * the contacts for the application user
  * TODO: this queries all the contacts, do we need "lazy" loading??
  */
-async function populateContactsTable() {
+async function populateContactsTable(firstName, lastName, phone, email) {
   let appUser = getUser();
   if(appUser == null) {
     // User is not logged in, how did we get here?
@@ -279,11 +233,11 @@ async function populateContactsTable() {
   // that (partial) match; but because they're empty all contacts will
   // be returned
   let requestData = {
-    firstName: "",
-    lastName: "",
-    phone: "",
-    email: "",
-    favorite: 0,
+    firstName: firstName,
+    lastName: lastName,
+    phone: phone,
+    email: phone,
+    favorite: -1,
     userId: appUser.id,
   };
   let [ code, result ] = await callApi("/SearchContact.php", requestData);
