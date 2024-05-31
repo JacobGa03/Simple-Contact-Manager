@@ -194,13 +194,12 @@ async function deleteContact(id) {
   let requestData = {
     id: id
   }
-
   let [ code, result ] = await callApi("/DeleteContact.php", requestData);
   if(code == 200) {
     /* TODO: Delete <tr> corresponding to the contact that we deleted. We should really AVOID reloading*/
     alert("deleted okay. please refresh manually"); // TODO
   } else {
-    console.log("Error when deleting");
+    /* oopsies */
   }
 }
 
@@ -214,46 +213,61 @@ async function searchContact(){
   }
 
   // Grab the input from the search bar
-  let searchContent = document.getElementById('search-input').value;
+  let searchContent = document.getElementById('search-input');
+  if(searchContent.value == '')
+  {
+    searchContent.setCustomValidity("Add Content to Search");
+    searchContent.reportValidity();
+    return;
+  }
+
+  let nameContent = searchContent.value;
+  let phoneContent = "-----";
+  let emailContent = "-----";
+
+  // Is an email present?
+  if((/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(searchContent.value)))
+  {
+    emailContent = searchContent.value;
+    nameContent = "-----";
+    phoneContent = "-------"
+  }
+  // Is a phone present?
+  else if((/^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$/.test(searchContent.value)))
+  {
+    emailContent = "-----";
+    nameContent = "-----";
+    phoneContent = searchContent.value;
+  }
+
+  //Default for searching names
+  let requestData = {
+    firstName: nameContent,
+    lastName: nameContent,
+    favorite:-1,
+    phone:phoneContent,
+    email:emailContent,
+    userId: appUser.id 
+  }
+  let [ code, result ] = await callApi("/SearchContact.php", requestData);
+
+  if(code == 200) {
+    alert("we got results"); // TODO
+  } else {
+    searchContent.setCustomValidity("No Matches Found");
+    searchContent.reportValidity();
+  }
   // Clear the input field after request is fulfilled
   document.getElementById("search-input").value = '';
-  //Delete the other rows from the table before showing the ones that match the search
-  //Crude but works for the time being
-  document.getElementById("contacts-table-tbody").innerHTML = "";
-  //Display the partial matched contacts
-  populateContactsTable(searchContent,searchContent,searchContent,searchContent);
-}
-
-async function updateContact(id){
-  //Package our request
-  let requestData = {
-    firstName: document.getElementById("edit-firstName").value,
-    lastName: document.getElementById("edit-lastName").value,
-    favorite: 0, /*document.getElementById("add-favorite").value,*/
-    /* TODO ^^^ Add overlay needs proper favorite checkbox or something */
-    phone: document.getElementById("edit-phone").value,
-    email: document.getElementById("edit-email").value,
-    id: id 
-  }
-  // Go back to the dashboard
-  document.getElementById("eoverlay").classList.remove("active");
-  //Process the request
-  let [ code, result ] = await callApi("/UpdateContact.php", requestData);
-  if(code == 200) {
-    console.log("update success"); // TODO
-  } else {
-    console.log("searchContact: Something went wrong.");
-  }
 }
 
 /* Populate the contacts table of the dashboard page with all
  * the contacts for the application user
  * TODO: this queries all the contacts, do we need "lazy" loading??
  */
-async function populateContactsTable(firstName, lastName, phone, email) {
+async function populateContactsTable() {
   let appUser = getUser();
-  if(appUser == null)
-  {
+  if(appUser == null) {
     // User is not logged in, how did we get here?
     console.log("populateContactsTable: User not logged in???");
     return;
@@ -265,11 +279,11 @@ async function populateContactsTable(firstName, lastName, phone, email) {
   // that (partial) match; but because they're empty all contacts will
   // be returned
   let requestData = {
-    firstName: firstName,
-    lastName: lastName,
-    phone: phone,
-    email: email,
-    favorite: -1,
+    firstName: "",
+    lastName: "",
+    phone: "",
+    email: "",
+    favorite: 0,
     userId: appUser.id,
   };
   let [ code, result ] = await callApi("/SearchContact.php", requestData);

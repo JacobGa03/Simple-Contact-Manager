@@ -147,7 +147,7 @@ body {
     text-decoration: underline;
 }
 
-.contact-container {
+.add-contact-container {
     background-color: #fff;
     padding: 20px;
     border-radius: 8px;
@@ -174,7 +174,7 @@ body {
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
-    color: #fff; 
+    /*color: #fff; white text rlly?*/
     font-size: 16px;
     cursor: pointer;
 }
