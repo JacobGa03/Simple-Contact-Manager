@@ -187,6 +187,37 @@ async function addContact() {
 }
 
 /*
+ * Update the properties of contact id with new information
+ * from the editor overlay textboxes.
+ */
+async function updateContact(id) {
+    //Grab the user information
+    let appUser = getUser();
+    if(appUser == null) {
+      // User is not logged in, how did we get here?
+      console.log("addContact: User not logged in???");
+      return;
+    }
+
+    let requestData = {
+      firstName: document.getElementById("edit-firstName").value,
+      lastName: document.getElementById("edit-lastName").value,
+      email: document.getElementById("edit-email").value,
+      phone: document.getElementById("edit-phone").value,
+      favorite: 0, // we still don't support favorite functionaliy
+      id: id, // contact id from function argument
+      userId: appUser.id // logged in user id
+    };
+
+    let [ code, result ] = await callApi("/UpdateContact.php", requestData);
+    if(code == 200) {
+      /* success */
+    } else {
+      /* handle error */
+    }
+}
+
+/*
  * Delete a contact by contact id
  * Loop through and remove the row corresponding to the contact we deleted
  */
@@ -355,14 +386,34 @@ function drawRow(result){
     document.getElementById("edit-email").value = editButton.associatedContact.email;
     document.getElementById("edit-phone").value = editButton.associatedContact.phone;
 
-    /* TODO figure out edit contact */
-    };
+    // the confirm button of the overlay...
+    let confirmButton = document.getElementById("confirm-edit");
+    // ...attach it to the edit function and bind contact id
+    confirmButton.addEventListener("click", () => {
+      updateContact(editButton.associatedContact.id);
+      overlay.classList.remove("active"); // hide overlay
+      // get the row of the table...
+      let tableRow = editButton.closest("tr");
+      // and changes the name, phone and mail to match update
+      let newfirstname = document.getElementById("edit-firstName").value;
+      let newlastname = document.getElementById("edit-lastName").value;
+      let newphone = document.getElementById("edit-phone").value;
+      let newemail = document.getElementById("edit-email").value;
+      editButton.associatedContact.firstName = newfirstname;
+      editButton.associatedContact.lastName = newlastname;
+      editButton.associatedContact.phone = newphone;
+      editButton.associatedContact.email = newemail;
+      tableRow.querySelector("#nameCell").replaceChildren(document.createTextNode(newfirstname + ' ' + newlastname));
+      tableRow.querySelector("#phoneCell").replaceChildren(document.createTextNode(newphone));
+      tableRow.querySelector("#emailCell").replaceChildren(document.createTextNode(newemail));
+     })
+  };
 
   let deleteCallback = (evt) => {
     // get the element that got triggered (ie, the button)
     let deleteButton = evt.currentTarget;
 
-      // show the HTML overlay
+    // show the HTML overlay
     let overlay = document.getElementById("doverlay");
     overlay.classList.add("active");
     // the confirm button of the overlay...
@@ -371,9 +422,9 @@ function drawRow(result){
     confirmButton.addEventListener("click", () => {
       deleteContact(deleteButton.associatedContact.id);
       overlay.classList.remove("active"); // hide overlay
-      // TODO: Simply not working at this point
-      document.getElementById("contacts-table-tbody").innerHTML = "";
-      populateContactsTable("","","","");
+      // get the row of the table...
+      let tableRow = deleteButton.closest("tr");
+      table.removeChild(tableRow); // ...and delete it
     });
   };
 
@@ -388,8 +439,11 @@ function drawRow(result){
     let emailCell = newRow.insertCell();
     let phoneCell = newRow.insertCell();
     nameCell.appendChild(document.createTextNode(contact.firstName + " " + contact.lastName));
+    nameCell.setAttribute("id", "nameCell");
     emailCell.appendChild(document.createTextNode(contact.email));
+    emailCell.setAttribute("id", "emailCell");
     phoneCell.appendChild(document.createTextNode(contact.phone));
+    phoneCell.setAttribute("id", "phoneCell");
     // create the two buttons and add the necessary class plus text
     let buttonsCell = newRow.insertCell();
     let buttonEdit = document.createElement("button");

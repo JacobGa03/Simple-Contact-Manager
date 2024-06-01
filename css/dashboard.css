@@ -174,7 +174,7 @@ body {
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
-    color: #fff; /*white text rlly?*/
+    /*color: #fff; white text is invisible in textboxes*/
     font-size: 16px;
     cursor: pointer;
 }
