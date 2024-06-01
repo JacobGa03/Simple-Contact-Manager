@@ -13,6 +13,7 @@
             <input type="text" id="search-input" class="search-bar" placeholder="Search contacts...">
             <button class="button" id="search-btn">Search</button>
             <button class="button" id="ashow-overlay-btn">Add Contact</button>
+            <button class="button" id="logout-btn">Logout</button> <!-- Added logout button -->
         </div>
         <div class="contacts-table">
             <table>
@@ -123,11 +124,41 @@
        </div> 
     </div>
 
+<<<<<<< Updated upstream
     <!--edit overlay script-->
     <script>
         const eoverlay = document.getElementById('eoverlay');
         const eshowOverlayBtn = document.getElementById('eshow-overlay-btn');
         const ecancelBtn = document.getElementById('ecancel-btn');
+=======
+    <!--logout overlay-->
+    <div class="overlay" id="loverlay"> <!-- Added logout overlay -->
+        <div class="delete contact-container">
+                <h2>Are You Sure You Want to Logout?</h2>
+                <!--Logout-->
+                <form >
+                    <button type="button" id="confirm-logout">Logout</button>
+                </form>
+                <div class="bottom-text">
+                    <a href="#" id="lcancel-btn">Cancel</a>
+                </div>
+        </div> 
+        </div>
+
+    <!-- script to hide/cancel the overlays -->
+    <script>
+        let hidefn = (evt) => {
+        // .closest(".overlay") traverses parents until it finds one
+        // with the overlay class
+        evt.currentTarget.closest(".overlay").classList.remove("active");
+        }
+        //Give the buttons the ability to hide
+        document.getElementById("acancel-btn").addEventListener("click", hidefn);
+        document.getElementById("ecancel-btn").addEventListener("click", hidefn);
+        document.getElementById("dcancel-btn").addEventListener("click", hidefn);
+        document.getElementById("lcancel-btn").addEventListener("click", hidefn); // Added cancel button for logout
+
+>>>>>>> Stashed changes
 
         eshowOverlayBtn.addEventListener('click', () => {
             eoverlay.classList.add('active');
@@ -149,6 +180,7 @@
             aoverlay.classList.add('active');
         });
 
+<<<<<<< Updated upstream
         acancelBtn.addEventListener('click', (e) => {
             e.preventDefault();
             aoverlay.classList.remove('active');
@@ -173,6 +205,12 @@
             //Remove the overlay and go back to the dashboard
             doverlay.classList.remove('active');
         })
+=======
+        //Logout overlay
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            loverlay.classList.add('active');
+        }); // Added event listener for logout button
+>>>>>>> Stashed changes
     </script>
 </body>
 </html>
