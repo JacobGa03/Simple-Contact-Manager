@@ -257,7 +257,11 @@ definitions:
         type: string
         description: Last name property of contact
         example: Doe
-      phone:
+      favorite:
+        type: integer
+        description: Favorite flag property of contact
+        example: 1
+       phone:
         type: string
         description: Phone number property of contact
         example: 18001239876

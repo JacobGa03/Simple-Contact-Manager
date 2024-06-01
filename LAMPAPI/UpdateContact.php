@@ -6,7 +6,8 @@
 	'favorite',
 	'phone',
 	'email',
-	'userId'
+  'userId',
+  'id'
 	];
 	//Get the input JSON and connect to the database
 	$inData = getRequestParams($required);
