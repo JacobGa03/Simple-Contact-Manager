@@ -1,5 +1,6 @@
 //Grab the UN and PW from the input tags, then request the users info from the database
-async function doLogin() {
+async function doLogin()
+{
   let username = document.getElementById("username");
   let password = document.getElementById("password");
   //Ensure that the fields are filled in for the API
@@ -15,14 +16,16 @@ async function doLogin() {
   }
 
   //Gather the data to be sent to the API
-  let requestData = {
+  let requestData =
+  {
     username: username.value,
     password: password.value
   };
 
   let [ code, result ] = await callApi("/Login.php", requestData);
   //Decode the response
-  switch(code)  {
+  switch(code) 
+  {
     case 200: // OK: Successful login
       saveUser(result);
       window.location.replace('dashboard.html');
@@ -39,7 +42,8 @@ async function doLogin() {
   }
 }
 //Grab all of the user information from the form and create a new User.
-async function doRegister() {
+async function doRegister()
+{
   let firstName = document.getElementById("firstName");
   let lastName = document.getElementById("lastName");
   let username = document.getElementById("username");
@@ -82,7 +86,8 @@ async function doRegister() {
   }
 
   //Gather the data to be sent to the API
-  let requestData = {
+  let requestData =
+  {
     username: username.value,
     password: password.value,
     firstName: firstName.value,
@@ -90,7 +95,8 @@ async function doRegister() {
   };
 
   let [ code, result ] = await callApi("/Register.php", requestData);
-  switch(code) {
+  switch(code)
+  {
     case 200: // OK: Successful registration
       saveUser(result);
       window.location.replace('dashboard.html');
@@ -108,10 +114,12 @@ async function doRegister() {
 }
 
 //Add Contact for a specified user
-async function addContact() {
+async function addContact()
+{
   //Grab the user information
   let appUser = getUser();
-  if(appUser == null) {
+  if(appUser == null)
+  {
     // User is not logged in, how did we get here?
     console.log("addContact: User not logged in???");
     return;
@@ -144,31 +152,45 @@ async function addContact() {
     phone.reportValidity();
     return;
   }
+  //Format our phone number to be ((xxx) xxx-xxx)
+  let stripped = phone.value.replace(/\D/g, '');
+  // Make sure there are the proper amount of digits
+  if(stripped.length != 10)
+  {
+    phone.setCustomValidity("Phone Numbers Have 10 Digits");
+    phone.reportValidity();
+    return;
+  }
+  let matchNum = stripped.match(/^(\d{3})(\d{3})(\d{4})$/);
+  let formatNumber = "("+matchNum[1]+") "+matchNum[2]+"-"+matchNum[3];
 
   //Package our request
-  let requestData = {
+  let requestData =
+  {
     firstName: document.getElementById("add-firstName").value,
     lastName: document.getElementById("add-lastName").value,
     favorite: 0, /*document.getElementById("add-favorite").value,*/
-    /* TODO ^^^ Add overlay needs proper favorite checkbox or something */
-    phone: document.getElementById("add-phone").value,
+    phone: formatNumber,
     email: document.getElementById("add-email").value,
     userId: appUser.id
   }
 
   let [ code, result ] = await callApi("/AddContact.php", requestData);
-  if(code == 200) {
+  if(code == 200)
+  {
     console.log("add success"); // TODO
-  } else {
+  } else
+  {
     console.log("addContact: Something went wrong.");
   }
 
-   let addResult = {
+   let addResult =
+   {
    Results: [
       {
-          firstName: firstName.value,
-          lastName: lastName.value,
-          phone: phone.value,
+          firstName: document.getElementById("add-firstName").value,
+          lastName: document.getElementById("add-lastName").value,
+          phone: formatNumber,
           email: email.value,
           userId: appUser.id,
           id: result.id
@@ -190,27 +212,42 @@ async function addContact() {
  * Update the properties of contact id with new information
  * from the editor overlay textboxes.
  */
-async function updateContact(id) {
+async function updateContact(id)
+{
     //Grab the user information
     let appUser = getUser();
-    if(appUser == null) {
+    if(appUser == null)
+    {
       // User is not logged in, how did we get here?
       console.log("addContact: User not logged in???");
       return;
     }
+    //Format our phone number to be ((xxx) xxx-xxx)
+    let stripped = document.getElementById("edit-phone").value.replace(/\D/g, '');
+    // Make sure there are the proper amount of digits
+    if(stripped.length != 10)
+    {
+      document.getElementById("edit-phone").setCustomValidity("Phone Numbers Have 10 Digits");
+      document.getElementById("edit-phone").reportValidity();
+      return;
+    }
+    let matchNum = stripped.match(/^(\d{3})(\d{3})(\d{4})$/);
+    let formatNumber = "("+matchNum[1]+") "+matchNum[2]+"-"+matchNum[3];
 
-    let requestData = {
+    let requestData =
+    {
       firstName: document.getElementById("edit-firstName").value,
       lastName: document.getElementById("edit-lastName").value,
       email: document.getElementById("edit-email").value,
-      phone: document.getElementById("edit-phone").value,
-      favorite: 0, // we still don't support favorite functionaliy
+      phone: formatNumber,
+      favorite: 0, // we still don't support favorite functionality
       id: id, // contact id from function argument
       userId: appUser.id // logged in user id
     };
 
     let [ code, result ] = await callApi("/UpdateContact.php", requestData);
-    if(code == 200) {
+    if(code == 200)
+    {
       /* success */
     } else {
       /* handle error */
@@ -221,7 +258,8 @@ async function updateContact(id) {
  * Delete a contact by contact id
  * Loop through and remove the row corresponding to the contact we deleted
  */
-async function deleteContact(id) {
+async function deleteContact(id)
+{
   let requestData = {
     id: id
   }
@@ -233,7 +271,8 @@ async function deleteContact(id) {
   }
 }
 
-async function searchContact(){
+async function searchContact()
+{
   // Grab the input from the search bar
   let searchContent = document.getElementById('search-input').value;
   //Clear the table to only show matches
@@ -249,9 +288,11 @@ async function searchContact(){
  * the contacts for the application user
  * TODO: this queries all the contacts, do we need "lazy" loading??
  */
-async function populateContactsTable(firstName, lastName, phone, email) {
+async function populateContactsTable(firstName, lastName, phone, email) 
+{
   let appUser = getUser();
-  if(appUser == null) {
+  if(appUser == null)
+  {
     // User is not logged in, how did we get here?
     console.log("populateContactsTable: User not logged in???");
     return;
@@ -262,17 +303,19 @@ async function populateContactsTable(firstName, lastName, phone, email) {
   // if these strings were not empty, the api would return contacts
   // that (partial) match; but because they're empty all contacts will
   // be returned
-  let requestData = {
+  let requestData = 
+  {
     firstName: firstName,
     lastName: lastName,
     phone: phone,
-    email: phone,
+    email: email,
     favorite: -1,
     userId: appUser.id,
   };
   let [ code, result ] = await callApi("/SearchContact.php", requestData);
 
-  switch(code) {
+  switch(code)
+  {
   case 404: // NOT FOUND: no contacts match
     /* TODO: clear the table, for example or do something else */
     console.log("populateContactsTable: zero contacts found");
@@ -300,10 +343,12 @@ async function populateContactsTable(firstName, lastName, phone, email) {
  * `result` will be a javascript object containing all values returned
  *   by the API.
  */
-async function callApi(endpointPath, requestData) {
+async function callApi(endpointPath, requestData)
+{
   // Construct and send request to backend.
   let url = window.location.origin + "/LAMPAPI" + endpointPath;
-  let options = {
+  let options =
+  {
     body: JSON.stringify(requestData),
     method: "POST"
   };
@@ -316,7 +361,8 @@ async function callApi(endpointPath, requestData) {
   // Our API always replies with 200 OK for successful requests, other status codes
   // indicate errors and API includes an error string in the result object.
   // For now, just log them to the browser's console.
-  if(responseObject.status != 200) {
+  if(responseObject.status != 200) 
+  {
     console.log("Error from backend (status=%d): %s", responseObject.status, result.error);
   }
 
@@ -336,7 +382,8 @@ async function callApi(endpointPath, requestData) {
  * a proper JS library like js-cookie if we need to do more complex tasks.
  */
 
-function saveUser(userData) {
+function saveUser(userData) 
+{
   // Expire time (20 minutes)
   let d = new Date();
   d.setTime(d.getTime() + 20 * 60 * 1000);
@@ -349,12 +396,15 @@ function saveUser(userData) {
     + "path=/";
 }
 
-function getUser() {
+function getUser() 
+{
   let obj = null;
   // Find the cookie named "user"
-  for(let c of document.cookie.split(";")) {
+  for(let c of document.cookie.split(";")) 
+  {
     c = c.trimStart();
-    if(c.startsWith('user=')) {
+    if(c.startsWith('user='))
+    {
       // Found it! Read the string to the right
       // of the "=" and decode it as JSON.
       let value = c.substring(5);
@@ -368,12 +418,14 @@ function getUser() {
 /* Draw a new <tr> for all of the contacts within result (array)
 *  The contact info and buttons are also drawn.
 */
-function drawRow(result){
+function drawRow(result)
+{
   // retrieve the HTML table element
   let table = document.getElementById("contacts-table-tbody");
 
   // the functions that will be attached to ALL the Edit/Delete buttons
-  let editCallback = (evt) => {
+  let editCallback = (evt) => 
+  {
     // get the element that got triggered (ie, the button)
     let editButton = evt.currentTarget;
     // show the HTML overlay
@@ -389,7 +441,8 @@ function drawRow(result){
     // the confirm button of the overlay...
     let confirmButton = document.getElementById("confirm-edit");
     // ...attach it to the edit function and bind contact id
-    confirmButton.addEventListener("click", () => {
+    confirmButton.addEventListener("click", () => 
+    {
       updateContact(editButton.associatedContact.id);
       overlay.classList.remove("active"); // hide overlay
       // get the row of the table...
@@ -409,7 +462,8 @@ function drawRow(result){
      })
   };
 
-  let deleteCallback = (evt) => {
+  let deleteCallback = (evt) => 
+  {
     // get the element that got triggered (ie, the button)
     let deleteButton = evt.currentTarget;
 
@@ -429,7 +483,8 @@ function drawRow(result){
   };
 
   // iterate over the received array of objects
-  for(contact of result["Results"]) {
+  for(contact of result["Results"]) 
+  {
     // create entries on the HTML table for each contact
     //TODO: Can we someway add some properties so we can make delete easier?
     let newRow = table.insertRow();

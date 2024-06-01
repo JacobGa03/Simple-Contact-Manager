@@ -261,7 +261,7 @@ definitions:
         type: integer
         description: Favorite flag property of contact
         example: 1
-       phone:
+      phone:
         type: string
         description: Phone number property of contact
         example: 18001239876
