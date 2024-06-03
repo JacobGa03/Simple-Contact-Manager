@@ -4,10 +4,9 @@ info:
   title: "Simple-Contact-Manager API"
   version: "1"
   
-host: contact-manager.rodlop.net
-basePath: /LAMPAPI
-schemes:
-  - http
+license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
 
 consumes:
   - application/json
@@ -293,3 +292,8 @@ responses:
     description: Unknown error or exception on back-end
     schema:
       $ref: '#/definitions/ErrorInfo'
+      
+host: contact-manager.rodlop.net
+basePath: /LAMPAPI
+schemes:
+  - http
