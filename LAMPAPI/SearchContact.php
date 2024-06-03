@@ -22,9 +22,9 @@
 	//Keep an array of Contact JSON objects
 	$searchResult = "";
 	try{
-		//Find the user within the database
-		$stmt = $conn->prepare('SELECT * FROM Contacts WHERE (`firstName` LIKE ? OR `lastName` LIKE ? OR `favorite` = ? OR `phone` LIKE ? OR `email` LIKE ?) AND `userId` = ?');
-		$stmt->bind_param('ssissi', $inData['firstName'], $inData['lastName'], $inData['favorite'], $inData['phone'], $inData['email'], $inData['userId']);
+		//Find the user within the database. The additional CONCAT condition allows searching by full name.
+		$stmt = $conn->prepare('SELECT * FROM Contacts WHERE (`firstName` LIKE ? OR `lastName` LIKE ? OR `favorite` = ? OR `phone` LIKE ? OR `email` LIKE ? OR CONCAT(`firstName`, " ", `lastName`) LIKE ?) AND `userId` = ?');
+		$stmt->bind_param('ssisssi', $inData['firstName'], $inData['lastName'], $inData['favorite'], $inData['phone'], $inData['email'], $inData['firstName'], $inData['userId']);
 		$stmt->execute();
 		$rslt = $stmt->get_result();
 
