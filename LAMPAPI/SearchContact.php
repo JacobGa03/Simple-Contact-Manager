@@ -21,7 +21,6 @@
 	$searchCount = 0;
 	//Keep an array of Contact JSON objects
 	$searchResult = "";
-
 	try{
 		//Find the user within the database
 		$stmt = $conn->prepare('SELECT * FROM Contacts WHERE (`firstName` LIKE ? OR `lastName` LIKE ? OR `favorite` = ? OR `phone` LIKE ? OR `email` LIKE ?) AND `userId` = ?');

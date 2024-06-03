@@ -4,15 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact Manager</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/index.css">
+    <script src="js/code.js"></script>
 </head>
-<body>
-    <div class="home-container">
-        <h1>Welcome to Simple Contact Manager</h1>
-        <p>This web page is a simple contact manager where you can store and manage your contacts easily.</p>
-        <div class="buttons">
-            <a href="register.html" class="button">Register</a>
-            <a href="login.html" class="button">Login</a>
+<body onload="simple();">
+    <div class = main-container>
+        <div class="home-container">
+            <a href="https://github.com/JacobGa03/Small-Contact-Manager" target="_blank">
+                <h1>Simple Contact Manager</h1>
+            </a>
+            <p id="landing-bottom-text" ></p>
+
+            <div class="buttons">
+                <a href="login.html" class="button">Login</a>
+            </div>
+        </div>
+        <!--About Section-->
+        <div class="about-container">
+            <h2>About Us</h2>
+            <p>
+                This project was made as part of COP 4331C. This contact manager demonstrates the use of the CRUD operations. 
+                The project was broken up into 3 sections: Frontend, API, and database. 
+
+                The frontend was done completely in vanilla HTML, CSS, and JavaScript. 
+                PHP was used as a backend language and allowed from communication between the frontend and database. 
+                MySQL was used as the database. This database stores tables of Users and Contacts, the two are related through an id which links
+                a User to their associated Contacts.
+            </p>
+
+            <h2>The Team</h2>
+                <div>
+                    <p>Zachary Cary</p>
+                </div>
+                <div>
+                    <p>Jacob Gadberry</p>
+                </div>
+                <div>
+                    <p>Ian Ordonez</p>
+                </div>
+                <div>
+                    <p>Pablo Rodriguez</p>
+                </div>
+                <div>
+                    <p>Landon Wright</p>
+                </div>
         </div>
     </div>
 </body>

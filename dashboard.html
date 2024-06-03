@@ -7,6 +7,11 @@
     <link rel="stylesheet" href="css/dashboard.css">
     <script src="js/code.js"></script>
 </head>
+<header>
+    <div class="buttons">
+        <a class="button" onclick="doLogout();">Logout</a>
+    </div>
+</header>
 <body onload="populateContactsTable('','','','');">
     <div class="dashboard-container">
         <h2>Welcome, <span id="username">Username</span></h2>
@@ -49,7 +54,7 @@
                 <label for="phone">Phone:</label>
                 <input type="tel" id="edit-phone" name="edit-phone" required>
 
-                <button type="button" id="confirm-edit" onclick="updateContact()">Save</button>
+                <button type="button" id="confirm-edit" onclick="updateContact();">Save</button>
             </form>
             <div class="bottom-text">
                 <a href="#" id="ecancel-btn">Cancel</a>
@@ -84,7 +89,7 @@
     <!--delete contact overlay-->
     <div class="overlay" id="doverlay">
        <div class="delete contact-container">
-            <h2>Are Your Sure You Want to Delete?</h2>
+            <h2>Are You Sure You Want to Delete?</h2>
             <!--Delete-->
             <form >
                 <button type="button" id="confirm-delete">Delete</button>

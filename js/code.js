@@ -41,6 +41,14 @@ async function doLogin()
       break;
   }
 }
+//Delete the cookie and log the user out of their session
+async function doLogout() 
+{
+  // Clear user cookie
+  document.cookie = "user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  // Redirect to landing page
+  window.location.replace('index.html');
+}
 //Grab all of the user information from the form and create a new User.
 async function doRegister()
 {
@@ -112,7 +120,6 @@ async function doRegister()
       break;
   }
 }
-
 //Add Contact for a specified user
 async function addContact()
 {
@@ -178,7 +185,7 @@ async function addContact()
   let [ code, result ] = await callApi("/AddContact.php", requestData);
   if(code == 200)
   {
-    console.log("add success"); // TODO
+    console.log("add success"); 
   } else
   {
     console.log("addContact: Something went wrong.");
@@ -207,10 +214,9 @@ async function addContact()
   document.getElementById("add-email").value = '';
   document.getElementById("add-phone").value = '';
 }
-
 /*
  * Update the properties of contact id with new information
- * from the editor overlay textboxes.
+ * from the editor overlay text boxes.
  */
 async function updateContact(id)
 {
@@ -222,15 +228,8 @@ async function updateContact(id)
       console.log("addContact: User not logged in???");
       return;
     }
-    //Format our phone number to be ((xxx) xxx-xxx)
+    // Format our phone number to be ((xxx) xxx-xxx)
     let stripped = document.getElementById("edit-phone").value.replace(/\D/g, '');
-    // Make sure there are the proper amount of digits
-    if(stripped.length != 10)
-    {
-      document.getElementById("edit-phone").setCustomValidity("Phone Numbers Have 10 Digits");
-      document.getElementById("edit-phone").reportValidity();
-      return;
-    }
     let matchNum = stripped.match(/^(\d{3})(\d{3})(\d{4})$/);
     let formatNumber = "("+matchNum[1]+") "+matchNum[2]+"-"+matchNum[3];
 
@@ -253,7 +252,6 @@ async function updateContact(id)
       /* handle error */
     }
 }
-
 /*
  * Delete a contact by contact id
  * Loop through and remove the row corresponding to the contact we deleted
@@ -270,7 +268,7 @@ async function deleteContact(id)
     /* oopsies */
   }
 }
-
+//Search based off partial match of search-input text field
 async function searchContact()
 {
   // Grab the input from the search bar
@@ -283,7 +281,6 @@ async function searchContact()
   // Clear the input field after request is fulfilled
   document.getElementById("search-input").value = '';
 }
-
 /* Populate the contacts table of the dashboard page with all
  * the contacts for the application user
  * TODO: this queries all the contacts, do we need "lazy" loading??
@@ -326,7 +323,6 @@ async function populateContactsTable(firstName, lastName, phone, email)
     break;
   }
 }
-
 /*
  * Sends a request to the specified endpoint. Automatically handles
  * the construction of the JSON request and decoding of the reply.
@@ -371,7 +367,6 @@ async function callApi(endpointPath, requestData)
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment
   return [ responseObject.status, result ];
 }
-
 /*
  * The following two functions save and retrieve the user information
  * via a browser cookie by encoding a javascript object as JSON and
@@ -381,7 +376,6 @@ async function callApi(endpointPath, requestData)
  * These cookie handler functions are very crude, we can take a look at
  * a proper JS library like js-cookie if we need to do more complex tasks.
  */
-
 function saveUser(userData) 
 {
   // Expire time (20 minutes)
@@ -443,18 +437,48 @@ function drawRow(result)
     // ...attach it to the edit function and bind contact id
     confirmButton.addEventListener("click", () => 
     {
-      updateContact(editButton.associatedContact.id);
-      overlay.classList.remove("active"); // hide overlay
-      // get the row of the table...
-      let tableRow = editButton.closest("tr");
-      // and changes the name, phone and mail to match update
+      // Grab the fields and verify correctness
       let newfirstname = document.getElementById("edit-firstName").value;
       let newlastname = document.getElementById("edit-lastName").value;
       let newphone = document.getElementById("edit-phone").value;
       let newemail = document.getElementById("edit-email").value;
+      // Ensure that the phone and email field follow the proper format
+      if(newfirstname == '')
+      {
+        document.getElementById("edit-firstName").reportValidity();
+        return;
+      }
+      if(newlastname == '')
+      {
+        document.getElementById("edit-lastName").reportValidity();
+        return;
+      }
+      // Format our phone number to be ((xxx) xxx-xxx)
+      let stripped = newphone.replace(/\D/g, '');
+      // Make sure there are the proper amount of digits
+      if(stripped.length != 10)
+      {
+        document.getElementById("edit-phone").setCustomValidity("Phone Numbers Have 10 Digits");
+        document.getElementById("edit-phone").reportValidity();
+        return;
+      }
+      let matchNum = stripped.match(/^(\d{3})(\d{3})(\d{4})$/);
+      let formatNumber = "("+matchNum[1]+") "+matchNum[2]+"-"+matchNum[3];
+      // Ensure the email fits the format
+      if(!(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(newemail)))
+      {
+        document.getElementById("edit-email").setCustomValidity("Only Emails of the Form 'example@email.com' are Allowed");
+        document.getElementById("edit-email").reportValidity();
+        return;
+      }
+      // Verification done, now actually call update API
+      updateContact(editButton.associatedContact.id);
+      overlay.classList.remove("active"); // hide overlay
+      let tableRow = editButton.closest("tr");
+      // Write the new changes
       editButton.associatedContact.firstName = newfirstname;
       editButton.associatedContact.lastName = newlastname;
-      editButton.associatedContact.phone = newphone;
+      editButton.associatedContact.phone = formatNumber;
       editButton.associatedContact.email = newemail;
       tableRow.querySelector("#nameCell").replaceChildren(document.createTextNode(newfirstname + ' ' + newlastname));
       tableRow.querySelector("#phoneCell").replaceChildren(document.createTextNode(newphone));
@@ -486,7 +510,6 @@ function drawRow(result)
   for(contact of result["Results"]) 
   {
     // create entries on the HTML table for each contact
-    //TODO: Can we someway add some properties so we can make delete easier?
     let newRow = table.insertRow();
     // Set the id of the new row to ('row' + contact.id)
     newRow.setAttribute("id", "row"+contact.id);
@@ -519,4 +542,22 @@ function drawRow(result)
     buttonsCell.appendChild(buttonEdit);
     buttonsCell.appendChild(buttonDelete);
   }
+}
+//Just for kicks, when the webpage loads, a random quote about simpleness will be loaded
+function simple(){
+  let simpleQuotes = [
+  '“Simplicity is the ultimate sophistication.” —Leonardo da Vinci',
+  '“Life is really simple, but we insist in making it complicated.” —Confucius',
+  '“Simplicity is the glory of expression.” —Walt Whitman',
+  '“Everything should be made as simple as possible, but not simpler.” —Albert Einstein',
+  '“Nature is pleased with simplicity.” —Isaac Newton',
+  '“There\'s nothing more simple than paradise.” —Dr. Leinecker (probably)',
+  '“Beauty of style and harmony and grace and good rhythm depend on simplicity.” —Plato',
+  '“Simplicity is prerequisite for reliability.” —Edsger Dijkstra',
+  '“Simplicity, carried to the extreme, becomes elegance.” —Jon Franklin'
+  ];
+  //Pick a random quote
+  let randomQuote = parseInt(Math.random()*(simpleQuotes.length-1));
+  //Set the inner text to a randomly selected quote
+  document.getElementById("landing-bottom-text").innerText = simpleQuotes[randomQuote];
 }

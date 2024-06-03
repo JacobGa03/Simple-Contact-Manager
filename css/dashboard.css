@@ -53,7 +53,7 @@ body {
     padding: 8px 16px;
     margin: 0 10px 10px 0;
     text-decoration: none;
-    background-color: #bbbb00;
+    background-color: #0037FF;
     color: #fff;
     border: none;
     border-radius: 4px;
@@ -66,7 +66,7 @@ body {
     padding: 8px 16px;
     margin: 0 10px 10px 0;
     text-decoration: none;
-    background-color: #ff0000;
+    background-color: #A30000;
     color: #fff;
     border: none;
     border-radius: 4px;
@@ -174,13 +174,22 @@ body {
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
-    /*color: #fff; white text is invisible in textboxes*/
     font-size: 16px;
     cursor: pointer;
+    color:#fff;
 }
 .contact-container button[type="button"]{
     background-color: #0037FF;
 }
 .contact-container input[type="submit"]:hover {
     background-color: #0037FF;
+}
+
+header{
+    position: fixed; 
+    top: 0; 
+    right: 0; 
+    color: #fff; 
+    padding: 10px 10px; 
+    z-index: 999; 
 }
